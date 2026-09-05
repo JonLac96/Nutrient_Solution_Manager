@@ -1,0 +1,34 @@
+# Virtuelle Umgebungen
+.venv/
+venv/
+env/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.eggs/
+dist/
+build/
+
+# Tests und Coverage
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Tooling
+.ruff_cache/
+.mypy_cache/
+
+# Lokale Umgebung und Geheimnisse
+.env
+.env.*
+
+# Betriebssystem
+.DS_Store
+Thumbs.db
+
+# Editor
+.idea/
+.vscode/

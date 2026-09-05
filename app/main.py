@@ -1,0 +1,26 @@
+from fastapi import FastAPI
+
+app = FastAPI(
+    title="Nutrient Solution Manager",
+    version="0.1.0",
+)
+
+
+@app.get("/")
+def read_root() -> dict[str, str]:
+    return {"name": "Nutrient Solution Manager"}
+
+
+@app.get("/health")
+def health() -> dict[str, str]:
+    return {"status": "ok"}
+
+
+@app.get("/tanks/{tank_id}")
+def read_tank(tank_id: str) -> dict[str, str]:
+    return {"tank_id": tank_id}
+
+
+@app.get("/plants")
+def list_plants(name: str | None = None) -> dict[str, str | None]:
+    return {"filter_name": name}
