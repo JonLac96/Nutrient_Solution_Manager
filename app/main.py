@@ -1,5 +1,7 @@
 from fastapi import FastAPI
 
+from app.schemas.fertilizer import FertilizerCreate, FertilizerResponse
+
 app = FastAPI(
     title="Nutrient Solution Manager",
     version="0.1.0",
@@ -24,3 +26,13 @@ def read_tank(tank_id: str) -> dict[str, str]:
 @app.get("/plants")
 def list_plants(name: str | None = None) -> dict[str, str | None]:
     return {"filter_name": name}
+
+
+@app.post("/fertilizers", response_model=FertilizerResponse)
+def create_fertilizer(payload: FertilizerCreate) -> FertilizerResponse:
+    return FertilizerResponse(
+        name=payload.name,
+        description=payload.description,
+        ec_effect_per_ml_per_liter=payload.ec_effect_per_ml_per_liter,
+    )
+

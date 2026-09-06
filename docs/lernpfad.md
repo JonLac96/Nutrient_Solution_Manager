@@ -323,7 +323,7 @@ Gemeinsam als erstes FastAPI-Beispiel.
 
 ### Status
 
-🔶 in Arbeit
+✅ abgeschlossen
 
 ---
 
@@ -353,7 +353,7 @@ Gemeinsam.
 
 ### Status
 
-⬜ offen
+✅ abgeschlossen
 
 ---
 
@@ -382,7 +382,7 @@ Gemeinsam mit Erklärung.
 
 ### Status
 
-⬜ offen
+🔶 in Arbeit
 
 ---
 
@@ -1259,18 +1259,30 @@ Dadurch wird verhindert, dass große Teile des Projekts entstehen, ohne dass die
 
 # 8. Aktueller nächster Schritt
 
-Der nächste konkrete Schritt ist:
+Stand nach Sitzung vom 2026-09-06.
 
-## LE 1.1 – Python-Projektstruktur und virtuelle Umgebung
+## Abgeschlossen
 
-Danach:
+- **LE 1.1** – Projektstruktur, `.venv`, uv, `pyproject.toml`, Hatchling
+- **LE 1.2** – FastAPI: `GET /`, `GET /health`, Path `GET /tanks/{tank_id}`, Query `GET /plants`
+- **LE 1.3** – Pydantic: `FertilizerCreate` / `FertilizerResponse`, `POST /fertilizers`, `Field`-Constraints, 422 bei ungültigen Daten
 
-1. FastAPI Grundgerüst
-2. Pydantic Grundlagen
-3. PostgreSQL mit Docker
-4. SQLAlchemy
-5. Alembic
-6. pytest
-7. erstes vollständiges Feature: Fertilizer CRUD
+Initialer Commit: `83b68f6` (enthält LE 1.1 und den FastAPI-Stand von LE 1.2).
+LE 1.3 ist im Arbeitsbaum, aber noch nicht committed.
 
-Erst danach werden die weiteren Stammdaten und die Regulation Engine implementiert.
+## In Arbeit
+
+**LE 1.4 – Docker Compose + PostgreSQL** (🔶)
+
+Erstes Ziel dieser Einheit: PostgreSQL läuft lokal über Docker Compose.
+
+Noch nicht in dieser Einheit:
+
+- FastAPI mit der Datenbank verbinden (LE 1.5, SQLAlchemy)
+- API selbst containerisieren (LE 7.1)
+
+## Nächster Schritt
+
+PostgreSQL per `docker compose up` starten und prüfen, dass der Container gesund ist.
+
+Nicht als Nächstes: SQLAlchemy, Alembic, Fertilizer-CRUD mit Datenbank.

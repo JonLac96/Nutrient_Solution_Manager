@@ -24,6 +24,7 @@ htmlcov/
 # Lokale Umgebung und Geheimnisse
 .env
 .env.*
+!.env.example
 
 # Betriebssystem
 .DS_Store
