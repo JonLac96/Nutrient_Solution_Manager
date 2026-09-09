@@ -1,5 +1,7 @@
 from fastapi import FastAPI
+from sqlalchemy import text
 
+from app.core.database import engine
 from app.schemas.fertilizer import FertilizerCreate, FertilizerResponse
 
 app = FastAPI(
@@ -16,6 +18,13 @@ def read_root() -> dict[str, str]:
 @app.get("/health")
 def health() -> dict[str, str]:
     return {"status": "ok"}
+
+
+@app.get("/health/db")
+def health_db() -> dict[str, str]:
+    with engine.connect() as connection:
+        connection.execute(text("SELECT 1"))
+    return {"database": "ok"}
 
 
 @app.get("/tanks/{tank_id}")

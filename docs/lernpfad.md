@@ -382,7 +382,7 @@ Gemeinsam mit Erklärung.
 
 ### Status
 
-🔶 in Arbeit
+✅ abgeschlossen
 
 ---
 
@@ -411,7 +411,7 @@ Gemeinsam.
 
 ### Status
 
-⬜ offen
+🔶 in Arbeit
 
 ---
 
@@ -1266,23 +1266,25 @@ Stand nach Sitzung vom 2026-09-06.
 - **LE 1.1** – Projektstruktur, `.venv`, uv, `pyproject.toml`, Hatchling
 - **LE 1.2** – FastAPI: `GET /`, `GET /health`, Path `GET /tanks/{tank_id}`, Query `GET /plants`
 - **LE 1.3** – Pydantic: `FertilizerCreate` / `FertilizerResponse`, `POST /fertilizers`, `Field`-Constraints, 422 bei ungültigen Daten
+- **LE 1.4** – Docker Compose: Service `db` (PostgreSQL 17), `.env` / `.env.example`, Volume `postgres_data`, Verbindung per DBeaver auf `localhost:5432`
 
 Initialer Commit: `83b68f6` (enthält LE 1.1 und den FastAPI-Stand von LE 1.2).
-LE 1.3 ist im Arbeitsbaum, aber noch nicht committed.
+LE 1.3 und LE 1.4 sind im Arbeitsbaum, aber noch nicht committed.
 
 ## In Arbeit
 
-**LE 1.4 – Docker Compose + PostgreSQL** (🔶)
+**LE 1.5 – SQLAlchemy Grundgerüst** (🔶)
 
-Erstes Ziel dieser Einheit: PostgreSQL läuft lokal über Docker Compose.
+Erstes Ziel: Python verbindet sich über Engine mit PostgreSQL (`SELECT 1`).
 
 Noch nicht in dieser Einheit:
 
-- FastAPI mit der Datenbank verbinden (LE 1.5, SQLAlchemy)
-- API selbst containerisieren (LE 7.1)
+- Alembic (LE 1.6)
+- Fertilizer als echtes Tabellenmodell (LE 2.1)
+- CRUD über die API persistieren
 
 ## Nächster Schritt
 
-PostgreSQL per `docker compose up` starten und prüfen, dass der Container gesund ist.
+Engine, Session und `Base` anlegen und die Verbindung prüfen.
 
-Nicht als Nächstes: SQLAlchemy, Alembic, Fertilizer-CRUD mit Datenbank.
+Nicht als Nächstes: Alembic, Fertilizer-CRUD mit Datenbank.
