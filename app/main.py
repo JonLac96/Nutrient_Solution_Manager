@@ -1,23 +1,13 @@
-from contextlib import asynccontextmanager
-
 from fastapi import FastAPI
 from sqlalchemy import select, text
 
-from app.core.database import Base, SessionLocal, engine
+from app.core.database import SessionLocal, engine
 from app.models import DemoRecord
 from app.schemas.fertilizer import FertilizerCreate, FertilizerResponse
-
-
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    Base.metadata.create_all(bind=engine)
-    yield
-
 
 app = FastAPI(
     title="Nutrient Solution Manager",
     version="0.1.0",
-    lifespan=lifespan,
 )
 
 

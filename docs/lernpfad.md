@@ -411,7 +411,7 @@ Gemeinsam.
 
 ### Status
 
-🔶 in Arbeit
+✅ abgeschlossen
 
 ---
 
@@ -439,7 +439,7 @@ Gemeinsam mit Erklärung.
 
 ### Status
 
-⬜ offen
+🔶 in Arbeit
 
 ---
 
@@ -1259,7 +1259,7 @@ Dadurch wird verhindert, dass große Teile des Projekts entstehen, ohne dass die
 
 # 8. Aktueller nächster Schritt
 
-Stand nach Sitzung vom 2026-09-06.
+Stand nach Sitzung vom 2026-09-09.
 
 ## Abgeschlossen
 
@@ -1267,29 +1267,21 @@ Stand nach Sitzung vom 2026-09-06.
 - **LE 1.2** – FastAPI: `GET /`, `GET /health`, Path `GET /tanks/{tank_id}`, Query `GET /plants`
 - **LE 1.3** – Pydantic: `FertilizerCreate` / `FertilizerResponse`, `POST /fertilizers`, `Field`-Constraints, 422 bei ungültigen Daten
 - **LE 1.4** – Docker Compose: Service `db` (PostgreSQL 17), `.env` / `.env.example`, Volume `postgres_data`, Verbindung per DBeaver auf `localhost:5432`
-
-Initialer Commit: `83b68f6` (enthält LE 1.1 und den FastAPI-Stand von LE 1.2).
-LE 1.3 und LE 1.4 sind im Arbeitsbaum, aber noch nicht committed.
+- **LE 1.5** – SQLAlchemy: Engine, Session, `Base`, `DemoRecord`, `GET /health/db`, `GET`/`POST /demo-records`
 
 ## In Arbeit
 
-**LE 1.5 – SQLAlchemy Grundgerüst** (🔶)
+**LE 1.6 – Alembic Migrationen** (🔶)
 
 Bereits vorhanden:
 
-- Engine, Session, `Base`, `GET /health/db` (`SELECT 1`)
-- Minimales deklaratives Modell `DemoRecord` → Tabelle `demo_records`
-- `create_all` beim App-Start (nur Lernbehelf, später Alembic)
-- `GET`/`POST /demo-records` über die Session
-
-Noch nicht in dieser Einheit:
-
-- Alembic (LE 1.6)
-- Fertilizer als echtes Tabellenmodell (LE 2.1)
-- CRUD über die API persistieren
+- `alembic.ini` + `alembic/env.py` (URL aus `.env`, Metadata von `Base`)
+- Erste Revision `5a5b99cdf83a` erzeugt `demo_records`
+- `alembic upgrade head` ausgeführt (`alembic_version` + `demo_records` in PostgreSQL)
+- `create_all` aus dem App-Start entfernt
 
 ## Nächster Schritt
 
-Tabelle in DBeaver prüfen, eine Zeile per `POST /demo-records?name=test` anlegen, LE 1.5-Checkpoint (Model vs. Schema, Session, `create_all` vs. Alembic).
+In DBeaver die Tabellen `demo_records` und `alembic_version` prüfen. Danach Checkpoint (Migration vs. `create_all`, upgrade/downgrade).
 
-Nicht als Nächstes: Alembic, Fertilizer-CRUD mit Datenbank.
+Nicht als Nächstes: Fertilizer-CRUD mit Datenbank.
