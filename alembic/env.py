@@ -6,7 +6,7 @@ from alembic import context
 
 from app.core.config import database_url
 from app.core.database import Base
-from app.models import DemoRecord  # noqa: F401
+from app import models  # noqa: F401 — lädt alle Modelle für Autogenerate
 
 config = context.config
 

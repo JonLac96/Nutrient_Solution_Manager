@@ -439,7 +439,7 @@ Gemeinsam mit Erklärung.
 
 ### Status
 
-🔶 in Arbeit
+✅ abgeschlossen
 
 ---
 
@@ -1267,21 +1267,16 @@ Stand nach Sitzung vom 2026-09-09.
 - **LE 1.2** – FastAPI: `GET /`, `GET /health`, Path `GET /tanks/{tank_id}`, Query `GET /plants`
 - **LE 1.3** – Pydantic: `FertilizerCreate` / `FertilizerResponse`, `POST /fertilizers`, `Field`-Constraints, 422 bei ungültigen Daten
 - **LE 1.4** – Docker Compose: Service `db` (PostgreSQL 17), `.env` / `.env.example`, Volume `postgres_data`, Verbindung per DBeaver auf `localhost:5432`
-- **LE 1.5** – SQLAlchemy: Engine, Session, `Base`, `DemoRecord`, `GET /health/db`, `GET`/`POST /demo-records`
+- **LE 1.5** – SQLAlchemy: Engine, Session, `Base`, `DemoRecord`, `GET /health/db`, `GET`/`POST /demo-records` (Session noch ohne FastAPI-`Depends`)
+- **LE 1.6** – Alembic: erste Revision `5a5b99cdf83a` (`demo_records`), `upgrade head`, `create_all` entfernt, `env.py` lädt Modelle über `from app import models`
 
 ## In Arbeit
 
-**LE 1.6 – Alembic Migrationen** (🔶)
+Keine Lerneinheit. Phase 1 bis LE 1.6 ist geschlossen.
 
-Bereits vorhanden:
+## Nächster Schritt in der nächsten Sitzung
 
-- `alembic.ini` + `alembic/env.py` (URL aus `.env`, Metadata von `Base`)
-- Erste Revision `5a5b99cdf83a` erzeugt `demo_records`
-- `alembic upgrade head` ausgeführt (`alembic_version` + `demo_records` in PostgreSQL)
-- `create_all` aus dem App-Start entfernt
+1. `docs/kistart.md` lesen, dann diesen Abschnitt.
+2. **LE 1.7 – pytest Grundlagen** beginnen: erster Unit Test, Arrange/Act/Assert, Teststruktur.
 
-## Nächster Schritt
-
-In DBeaver die Tabellen `demo_records` und `alembic_version` prüfen. Danach Checkpoint (Migration vs. `create_all`, upgrade/downgrade).
-
-Nicht als Nächstes: Fertilizer-CRUD mit Datenbank.
+Nicht als Nächstes: Fertilizer-CRUD mit Datenbank, SQLAlchemy-`Depends`.
