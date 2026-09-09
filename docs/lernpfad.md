@@ -1275,7 +1275,12 @@ LE 1.3 und LE 1.4 sind im Arbeitsbaum, aber noch nicht committed.
 
 **LE 1.5 – SQLAlchemy Grundgerüst** (🔶)
 
-Erstes Ziel: Python verbindet sich über Engine mit PostgreSQL (`SELECT 1`).
+Bereits vorhanden:
+
+- Engine, Session, `Base`, `GET /health/db` (`SELECT 1`)
+- Minimales deklaratives Modell `DemoRecord` → Tabelle `demo_records`
+- `create_all` beim App-Start (nur Lernbehelf, später Alembic)
+- `GET`/`POST /demo-records` über die Session
 
 Noch nicht in dieser Einheit:
 
@@ -1285,6 +1290,6 @@ Noch nicht in dieser Einheit:
 
 ## Nächster Schritt
 
-Engine, Session und `Base` anlegen und die Verbindung prüfen.
+Tabelle in DBeaver prüfen, eine Zeile per `POST /demo-records?name=test` anlegen, LE 1.5-Checkpoint (Model vs. Schema, Session, `create_all` vs. Alembic).
 
 Nicht als Nächstes: Alembic, Fertilizer-CRUD mit Datenbank.

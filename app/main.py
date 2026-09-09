@@ -1,12 +1,23 @@
-from fastapi import FastAPI
-from sqlalchemy import text
+from contextlib import asynccontextmanager
 
-from app.core.database import engine
+from fastapi import FastAPI
+from sqlalchemy import select, text
+
+from app.core.database import Base, SessionLocal, engine
+from app.models import DemoRecord
 from app.schemas.fertilizer import FertilizerCreate, FertilizerResponse
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    Base.metadata.create_all(bind=engine)
+    yield
+
 
 app = FastAPI(
     title="Nutrient Solution Manager",
     version="0.1.0",
+    lifespan=lifespan,
 )
 
 
@@ -25,6 +36,23 @@ def health_db() -> dict[str, str]:
     with engine.connect() as connection:
         connection.execute(text("SELECT 1"))
     return {"database": "ok"}
+
+
+@app.get("/demo-records")
+def list_demo_records() -> list[dict[str, str]]:
+    with SessionLocal() as session:
+        records = session.scalars(select(DemoRecord)).all()
+        return [{"id": str(record.id), "name": record.name} for record in records]
+
+
+@app.post("/demo-records")
+def create_demo_record(name: str) -> dict[str, str]:
+    with SessionLocal() as session:
+        record = DemoRecord(name=name)
+        session.add(record)
+        session.commit()
+        session.refresh(record)
+        return {"id": str(record.id), "name": record.name}
 
 
 @app.get("/tanks/{tank_id}")
