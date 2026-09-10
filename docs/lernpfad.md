@@ -521,7 +521,7 @@ Erstes Beispiel gemeinsam.
 
 ### Status
 
-🔶 in Arbeit
+✅ abgeschlossen
 
 ---
 
@@ -1270,16 +1270,37 @@ Stand nach Sitzung vom 2026-09-10.
 - **LE 1.5** – SQLAlchemy: Engine, Session, `Base`, `DemoRecord`, `GET /health/db`, `GET`/`POST /demo-records` (Session noch ohne FastAPI-`Depends`)
 - **LE 1.6** – Alembic: erste Revision `5a5b99cdf83a` (`demo_records`), `upgrade head`, `create_all` entfernt, `env.py` lädt Modelle über `from app import models`
 - **LE 1.7** – pytest: `tests/unit/`, Assertions, AAA, Fixture `valid_fertilizer_payload` in `conftest.py`, Tests für `FertilizerCreate`
+- **LE 2.1** – Fertilizer-Model, Alembic-Revision `b2741119ca18` (`fertilizers`), `upgrade head`; Notiz in `notes/alembic-tabelle-fertilizers.md`
 
 ## In Arbeit
 
-**LE 2.1 – Fertilizer: SQLAlchemy Model**
+Keine Lerneinheit. Phase 2 bis LE 2.1 ist geschlossen.
 
-- `app/models/fertilizer.py` analog zu `DemoRecord`
-- in `app/models/__init__.py` exportiert, damit Alembic Autogenerate es sieht
+## Nächster Schritt in der nächsten Sitzung
 
-## Nächster kleiner Schritt
+1. `docs/kistart.md` lesen, dann diesen Abschnitt.
+2. **LE 2.2 – Fertilizer: Pydantic Schemas** beginnen: `FertilizerCreate`, `FertilizerUpdate`, `FertilizerResponse` klar vom SQLAlchemy-Model trennen.
 
-Alembic-Revision für Tabelle `fertilizers` erzeugen und `upgrade head` ausführen.
+### Arbeitsweise (verbindlich)
+
+Das Fertilizer-**Model** (LE 2.1) war das erste SQLAlchemy-Beispiel und wurde gemeinsam geschrieben.
+
+Ab **LE 2.2** schreibt der Lernende den Code. Der Agent liefert vorher Spezifikation, Felder und Erwartungen, danach Review — keine fertige Implementierung, außer der Lernende bleibt stecken (dann Hinweis → kleineres Beispiel, nicht die ganze Lösung).
+
+`FertilizerCreate` / `FertilizerResponse` existieren schon aus LE 1.3; in LE 2.2 geht es um die Trennung vom Model und um `FertilizerUpdate`.
+
+LE 2.3 (erster Service) und LE 2.4 (erste CRUD-API) bleiben laut Lernpfad das **erste** Muster der jeweiligen Schicht und dürfen noch gemeinsam entstehen. Ab Phase 3 (Plant, GrowthStage, …) wieder der Lernende.
+
+**Nach jeder Lerneinheit** den Lernenden fragen: abschließen? committen? nächste LE beginnen? Nichts davon ungefragt tun.
 
 Nicht als Nächstes: Fertilizer-CRUD, Service Layer, SQLAlchemy-`Depends`.
+
+## Hinweise aus der Sitzung vom 2026-09-10
+
+Diese Punkte braucht die nächste Session; sie stehen nicht zuverlässig im Chat.
+
+- **Ein Konzept pro Schritt.** Parametrize (`@pytest.mark.parametrize`) war zu früh und wurde zurückgenommen. Fixture + `conftest.py` reichen für LE 1.7. Parametrize erst, wenn viele gleichartige Fälle da sind.
+- **Dict aus der Fixture:** `payload = valid_fertilizer_payload.copy()` und danach ein Feld setzen. Nicht `{**dict, "name": ""}`.
+- **Git liegt hinter dem Lernstand.** Branch noch `le-1-6-alembic`, obwohl LE 1.7 und 2.1 fertig sind. `main` war als `[gone]` sichtbar. Vor der nächsten LE Branch-Lage klären. Nicht drei Lerneinheiten auf einem Branch mischen. Nicht ungefragt committen.
+- Persönliche Alembic-Anleitung des Lernenden: `notes/alembic-tabelle-fertilizers.md`.
+- Sitzungsende immer über `docs/kistart.md` Abschnitt „Sitzung beenden“: Stand hier fortschreiben, nichts Wichtiges nur im Chat lassen.

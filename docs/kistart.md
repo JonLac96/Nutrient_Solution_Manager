@@ -127,6 +127,14 @@ Am Ende des Lernpfads steht der konkrete nächste Schritt.
 
 Dieser Abschnitt hat Priorität gegenüber Vermutungen aufgrund älterer Chatverläufe.
 
+Er enthält nach jeder beendeten Sitzung:
+
+- abgeschlossene Schritte
+- was in Arbeit ist
+- den nächsten kleinen Schritt
+- Arbeitsabsprachen (wer schreibt)
+- Hinweise, die eine neue Session sonst aus dem Chat nicht kennen würde
+
 ---
 
 # 3. Bei Bedarf nachschlagen
@@ -335,6 +343,20 @@ vollständig erklären und implementieren.
 
 Stattdessen entlang des Lernpfads arbeiten.
 
+## Nach jeder Lerneinheit
+
+Wenn das Lernziel der aktuellen LE erreicht ist, **nicht** stillschweigend abschließen,
+committen oder die nächste LE starten.
+
+Stattdessen den Lernenden fragen:
+
+1. Soll die Lerneinheit abgeschlossen werden (Status in `lernpfad.md`)?
+2. Sollen die Änderungen committen werden?
+3. Soll die nächste Lerneinheit begonnen werden?
+
+Erst nach der jeweiligen Antwort handeln. Die drei Punkte dürfen einzeln mit Ja/Nein
+beantwortet werden (z. B. abschließen und committen, aber heute keine neue LE).
+
 ---
 
 # 7. Testing-Regel
@@ -384,7 +406,7 @@ Beispiele:
 Bevor du mit der eigentlichen Arbeit beginnst:
 
 1. Lies `lernpfad.md`.
-2. Ermittle den aktuellen Status.
+2. Ermittle den aktuellen Status. Dazu den Abschnitt „Aktueller nächster Schritt“ **vollständig** lesen (Arbeitsweise und Hinweise inklusive).
 3. Lies bei Bedarf `projektkonzept.md`.
 4. Fasse kurz zusammen:
    - wo wir gerade stehen,
@@ -402,7 +424,53 @@ Erst nach Bestätigung beginnen.
 
 ---
 
-# 9. Aktuelle Quellen der Wahrheit
+# 9. Sitzung beenden
+
+Der Lernende beendet eine Session typischerweise mit einer Formulierung wie:
+
+> „Beende die Session wie in kistart beschrieben.“
+
+Dann gilt: Der Chatverlauf ist danach weg. Alles, was die nächste Session brauchen
+kann, muss **in Dateien** stehen, nicht nur in der Antwort.
+
+## Wohin speichern?
+
+| Art der Information | Datei |
+|---|---|
+| LE-Status, nächster Schritt, Arbeitsweise, Warnungen, Git-Lage, bewusste Vereinfachungen | **[`lernpfad.md`](lernpfad.md)** Abschnitt „Aktueller nächster Schritt“ |
+| Status der einzelnen Lerneinheit (⬜ / 🔶 / ✅) | dieselbe Datei, bei der Lerneinheit |
+| Fachliche/technische Zielbild-Änderung | [`projektkonzept.md`](projektkonzept.md), nur nach Absprache |
+| Git-/Review-Ablauf | [`workflow.md`](workflow.md) |
+| Persönliche Anleitungen des Lernenden (Befehle nachschlagen) | `notes/` — nicht als Agenten-Quelle der Wahrheit |
+
+Nicht mehrere Wahrheiten pflegen. Der Agent merkt sich nichts über Sitzungen hinweg,
+außer dem, was in diesen Dateien steht.
+
+## Checkliste
+
+1. Lerneinheiten-Status auf den tatsächlichen Stand setzen.
+2. Abschnitt „Aktueller nächster Schritt“ in `lernpfad.md` **vollständig neu schreiben**, nicht nur ergänzen. Darin müssen stehen:
+   - Datum
+   - Abgeschlossen (kurz, inkl. Revisions-IDs / Dateipfade wo nötig)
+   - In Arbeit
+   - Nächster Schritt der nächsten Sitzung
+   - Arbeitsweise (wer implementiert)
+   - Hinweise aus dieser Sitzung, ohne die eine neue Session Fehler wiederholen würde
+   - Was bewusst *nicht* als Nächstes kommt
+3. Keine offenen Absprachen nur im Chat lassen (z. B. „Parametrize später“, „du tippst ab LE 2.2“).
+4. Kurz dem Lernenden sagen, was geschrieben wurde und was die nächste Session als Erstes tun soll.
+5. Nicht ungefragt committen, branchen oder die nächste Lerneinheit starten.
+
+Beispiel für Hinweise, die in Abschnitt 8 gehören:
+
+- ein Konzept war zu früh und wurde zurückgestellt
+- eine Syntax wurde bewusst einfach gehalten
+- Git-Branch passt nicht zur aktuellen LE
+- der Lernende schreibt den nächsten Code selbst
+
+---
+
+# 10. Aktuelle Quellen der Wahrheit
 
 Die aktuellen technischen Quellen der Wahrheit sind:
 
@@ -416,7 +484,7 @@ verwendet werden.
 
 ---
 
-# 10. Grundsatz
+# 11. Grundsatz
 
 Das Ziel des Projekts ist nicht nur eine funktionierende Anwendung.
 

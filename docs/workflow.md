@@ -60,6 +60,14 @@ In main mergen
 
 Der Agent wartet bei größeren neuen Schritten auf Bestätigung.
 
+Wenn das Lernziel einer Lerneinheit erreicht ist, fragt der Agent **immer** zuerst:
+
+1. Lerneinheit abschließen?
+2. Committen?
+3. Nächste Lerneinheit beginnen?
+
+Ohne klare Antwort keines der drei tun.
+
 ---
 
 # 4. Commits

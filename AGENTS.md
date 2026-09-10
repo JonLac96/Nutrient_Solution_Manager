@@ -434,7 +434,9 @@ Dort stehen:
 - Status der Lerneinheiten
 - aktueller nächster Schritt
 
-Neue Erkenntnisse, größere Reihenfolgeänderungen oder zusätzliche Lerneinheiten sollen dort nachgepflegt werden.
+Neue Erkenntnisse, größere Reihenfolgeänderungen, zusätzliche Lerneinheiten **und
+sitzungsübergreifende Arbeitsabsprachen** sollen dort nachgepflegt werden — vor allem in
+Abschnitt „Aktueller nächster Schritt“. Chatverläufe sind keine Quelle der Wahrheit.
 
 ---
 
@@ -480,13 +482,25 @@ Sie beschreibt:
 
 - welche Dateien zuerst gelesen werden,
 - wie der aktuelle Projektstand bestimmt wird,
-- wie eine neue Lerneinheit begonnen wird.
+- wie eine neue Lerneinheit begonnen wird,
+- wie eine Sitzung beendet wird, damit der Lernstand in `lernpfad.md` landet.
 
 ---
 
 ## `docs/workflow.md`
 
 Diese Datei beschreibt den Git-, Branch- und Review-Ablauf für das Python-Projekt.
+
+---
+
+# Vorgehen am Ende einer Sitzung
+
+Wenn der Lernende die Sitzung beenden will (typisch: „beende die Session wie in kistart
+beschrieben“), folgt der Agent **[`docs/kistart.md`](docs/kistart.md)**, Abschnitt
+„Sitzung beenden“.
+
+Kurz: Status und nächster Schritt in `lernpfad.md` schreiben. Nichts Wichtiges nur im Chat
+lassen.
 
 ---
 
@@ -500,6 +514,7 @@ Bevor der Agent mit einer neuen Aufgabe beginnt:
 4. Lernziel kurz zusammenfassen.
 5. Den nächsten kleinen Schritt vorschlagen.
 6. Bei größeren neuen Schritten auf Bestätigung warten.
+7. Nach erreichtem Lernziel einer LE immer fragen: abschließen? committen? nächste LE beginnen?
 
 Beispiel:
 
