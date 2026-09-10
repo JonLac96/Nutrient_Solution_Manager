@@ -467,7 +467,7 @@ Gemeinsam.
 
 ### Status
 
-🔶 in Arbeit
+✅ abgeschlossen
 
 ---
 
@@ -521,7 +521,7 @@ Erstes Beispiel gemeinsam.
 
 ### Status
 
-⬜ offen
+🔶 in Arbeit
 
 ---
 
@@ -1269,18 +1269,17 @@ Stand nach Sitzung vom 2026-09-10.
 - **LE 1.4** – Docker Compose: Service `db` (PostgreSQL 17), `.env` / `.env.example`, Volume `postgres_data`, Verbindung per DBeaver auf `localhost:5432`
 - **LE 1.5** – SQLAlchemy: Engine, Session, `Base`, `DemoRecord`, `GET /health/db`, `GET`/`POST /demo-records` (Session noch ohne FastAPI-`Depends`)
 - **LE 1.6** – Alembic: erste Revision `5a5b99cdf83a` (`demo_records`), `upgrade head`, `create_all` entfernt, `env.py` lädt Modelle über `from app import models`
+- **LE 1.7** – pytest: `tests/unit/`, Assertions, AAA, Fixture `valid_fertilizer_payload` in `conftest.py`, Tests für `FertilizerCreate`
 
 ## In Arbeit
 
-**LE 1.7 – pytest Grundlagen**
+**LE 2.1 – Fertilizer: SQLAlchemy Model**
 
-- pytest als Dev-Abhängigkeit (`uv add --dev pytest`)
-- Testordner `tests/unit/`
-- Unit Tests für `FertilizerCreate` (gültig, leerer Name, negativer EC)
-- Fixture `valid_fertilizer_payload` in `tests/unit/conftest.py`
+- `app/models/fertilizer.py` analog zu `DemoRecord`
+- in `app/models/__init__.py` exportiert, damit Alembic Autogenerate es sieht
 
 ## Nächster kleiner Schritt
 
-LE 1.7 abschließen: Checkpoint (pytest, AAA, Assertions, Fixtures, `conftest.py`) und Status auf abgeschlossen setzen.
+Alembic-Revision für Tabelle `fertilizers` erzeugen und `upgrade head` ausführen.
 
-Nicht als Nächstes: Fertilizer-CRUD mit Datenbank, SQLAlchemy-`Depends`. Parametrize kommt später, wenn mehr gleichartige Fälle da sind.
+Nicht als Nächstes: Fertilizer-CRUD, Service Layer, SQLAlchemy-`Depends`.
