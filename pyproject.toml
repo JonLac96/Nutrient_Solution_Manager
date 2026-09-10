@@ -21,3 +21,11 @@ packages = ["app"]
 # uv nutzt sonst eigene Zertifikate; auf diesem Rechner braucht PyPI die System-Zertifikate.
 [tool.uv]
 system-certs = true
+
+[dependency-groups]
+dev = [
+    "pytest>=9.1.1",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

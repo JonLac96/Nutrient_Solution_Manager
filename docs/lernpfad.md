@@ -467,7 +467,7 @@ Gemeinsam.
 
 ### Status
 
-⬜ offen
+🔶 in Arbeit
 
 ---
 
@@ -1259,7 +1259,7 @@ Dadurch wird verhindert, dass große Teile des Projekts entstehen, ohne dass die
 
 # 8. Aktueller nächster Schritt
 
-Stand nach Sitzung vom 2026-09-09.
+Stand nach Sitzung vom 2026-09-10.
 
 ## Abgeschlossen
 
@@ -1272,11 +1272,15 @@ Stand nach Sitzung vom 2026-09-09.
 
 ## In Arbeit
 
-Keine Lerneinheit. Phase 1 bis LE 1.6 ist geschlossen.
+**LE 1.7 – pytest Grundlagen**
 
-## Nächster Schritt in der nächsten Sitzung
+- pytest als Dev-Abhängigkeit (`uv add --dev pytest`)
+- Testordner `tests/unit/`
+- Unit Tests für `FertilizerCreate` (gültig, leerer Name, negativer EC)
+- Fixture `valid_fertilizer_payload` in `tests/unit/conftest.py`
 
-1. `docs/kistart.md` lesen, dann diesen Abschnitt.
-2. **LE 1.7 – pytest Grundlagen** beginnen: erster Unit Test, Arrange/Act/Assert, Teststruktur.
+## Nächster kleiner Schritt
 
-Nicht als Nächstes: Fertilizer-CRUD mit Datenbank, SQLAlchemy-`Depends`.
+LE 1.7 abschließen: Checkpoint (pytest, AAA, Assertions, Fixtures, `conftest.py`) und Status auf abgeschlossen setzen.
+
+Nicht als Nächstes: Fertilizer-CRUD mit Datenbank, SQLAlchemy-`Depends`. Parametrize kommt später, wenn mehr gleichartige Fälle da sind.
