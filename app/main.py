@@ -58,6 +58,7 @@ def list_plants(name: str | None = None) -> dict[str, str | None]:
 @app.post("/fertilizers", response_model=FertilizerResponse)
 def create_fertilizer(payload: FertilizerCreate) -> FertilizerResponse:
     return FertilizerResponse(
+        id=1,
         name=payload.name,
         description=payload.description,
         ec_effect_per_ml_per_liter=payload.ec_effect_per_ml_per_liter,

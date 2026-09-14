@@ -26,7 +26,7 @@ Der geplante Haupt-Stack besteht aus:
 - Docker Compose
 - pytest
 - uv und `pyproject.toml`
-- UUID als Primärschlüssel
+- INTEGER Auto-Increment als Primärschlüssel (PostgreSQL `SERIAL` / `IDENTITY`)
 
 Spätere Erweiterungen:
 
@@ -563,7 +563,7 @@ Pydantic beschreibt:
 
 # 19. Datenmodell
 
-Die geplanten Kernobjekte sind. Alle `Id`-Felder sind UUIDs.
+Die geplanten Kernobjekte sind. Alle `Id`-Felder sind ganze Zahlen (`INTEGER`). Die Datenbank vergibt sie beim INSERT (`AUTO INCREMENT` / PostgreSQL `SERIAL` bzw. `IDENTITY`).
 
 ## Plant
 

@@ -33,7 +33,7 @@ Der Lernpfad ist ein lebendes Dokument. Wir passen ihn an, wenn sich beim Entwic
 | Containerisierung | **Docker** |
 | Lokale Services | **Docker Compose** |
 | Architektur | API → Service → Fachlogik → Infrastruktur |
-| Primärschlüssel | **UUID** |
+| Primärschlüssel | **INTEGER, Auto-Increment** (PostgreSQL: `SERIAL` / `IDENTITY`) |
 | Hardware-Kommunikation | später MQTT |
 | Hardware | später ESP32 und Sensorik |
 | Repository | GitHub |
@@ -547,7 +547,7 @@ Du nach dem gemeinsamen Muster.
 
 ### Status
 
-⬜ offen
+✅ abgeschlossen
 
 ---
 
@@ -1259,7 +1259,7 @@ Dadurch wird verhindert, dass große Teile des Projekts entstehen, ohne dass die
 
 # 8. Aktueller nächster Schritt
 
-Stand nach Sitzung vom 2026-09-10.
+Stand 2026-09-14 (LE 2.2 abgeschlossen, LE 2.3 wird als Nächstes begonnen).
 
 ## Abgeschlossen
 
@@ -1271,36 +1271,38 @@ Stand nach Sitzung vom 2026-09-10.
 - **LE 1.6** – Alembic: erste Revision `5a5b99cdf83a` (`demo_records`), `upgrade head`, `create_all` entfernt, `env.py` lädt Modelle über `from app import models`
 - **LE 1.7** – pytest: `tests/unit/`, Assertions, AAA, Fixture `valid_fertilizer_payload` in `conftest.py`, Tests für `FertilizerCreate`
 - **LE 2.1** – Fertilizer-Model, Alembic-Revision `b2741119ca18` (`fertilizers`), `upgrade head`; Notiz in `notes/alembic-tabelle-fertilizers.md`
+- **LE 2.2** – Pydantic-Schemas `FertilizerCreate` / `FertilizerUpdate` / `FertilizerResponse`; `id: int`; `ConfigDict(from_attributes=True)`; Unit-Tests in `tests/unit/test_fertilizer_schema.py`. Primärschlüssel bewusst auf INTEGER Auto-Increment (Revision `626c042a758a`). Dummy-`POST /fertilizers` mit Platzhalter `id=1`.
 
 ## In Arbeit
 
-Keine Lerneinheit. Phase 2 bis LE 2.1 ist geschlossen.
+Keine Lerneinheit im Commit-Stand von LE 2.2. Nächster Schritt: **LE 2.3 – Fertilizer Service** auf neuem Branch `le-2-3-fertilizer-service`.
 
-## Nächster Schritt in der nächsten Sitzung
+## Nächster Schritt
 
-1. `docs/kistart.md` lesen, dann diesen Abschnitt.
-2. **LE 2.2 – Fertilizer: Pydantic Schemas** beginnen: `FertilizerCreate`, `FertilizerUpdate`, `FertilizerResponse` klar vom SQLAlchemy-Model trennen.
+LE 2.3 beginnen: Service Layer, Session als Parameter, erstes gemeinsames Beispiel `create`. Noch keine REST-CRUD-Endpunkte (LE 2.4), noch kein FastAPI-`Depends`.
 
 ### Arbeitsweise (verbindlich)
 
-Das Fertilizer-**Model** (LE 2.1) war das erste SQLAlchemy-Beispiel und wurde gemeinsam geschrieben.
-
-Ab **LE 2.2** schreibt der Lernende den Code. Der Agent liefert vorher Spezifikation, Felder und Erwartungen, danach Review — keine fertige Implementierung, außer der Lernende bleibt stecken (dann Hinweis → kleineres Beispiel, nicht die ganze Lösung).
-
-`FertilizerCreate` / `FertilizerResponse` existieren schon aus LE 1.3; in LE 2.2 geht es um die Trennung vom Model und um `FertilizerUpdate`.
-
-LE 2.3 (erster Service) und LE 2.4 (erste CRUD-API) bleiben laut Lernpfad das **erste** Muster der jeweiligen Schicht und dürfen noch gemeinsam entstehen. Ab Phase 3 (Plant, GrowthStage, …) wieder der Lernende.
+Ab **LE 2.2** schreibt der Lernende wiederkehrende Muster selbst. LE 2.3 ist das **erste** Service-Beispiel und darf gemeinsam entstehen: erst `create` gemeinsam, danach `get` / `get_all` / `update` / `delete` der Lernende mit Review.
 
 **Nach jeder Lerneinheit** den Lernenden fragen: abschließen? committen? nächste LE beginnen? Nichts davon ungefragt tun.
 
-Nicht als Nächstes: Fertilizer-CRUD, Service Layer, SQLAlchemy-`Depends`.
+## Hinweise (Stand 2026-09-14)
 
-## Hinweise aus der Sitzung vom 2026-09-10
+- **Primärschlüssel:** INTEGER Auto-Increment, nicht UUID. Create schickt keine Id; PostgreSQL vergibt sie beim INSERT; Response `id: int`. `DemoRecord` bleibt vorerst UUID (LE-1.5-Demo).
+- **Dummy-POST `/fertilizers`:** Speichert noch nicht. `id=1` ist ein Platzhalter. Echter Insert kommt im Service (LE 2.3); Router umbiegen in LE 2.4.
+- Service bekommt eine SQLAlchemy-`Session` als Argument. `Depends` kommt erst in LE 2.4.
+- Service gibt das ORM-Objekt `Fertilizer` zurück, nicht `FertilizerResponse`. Die Umwandlung macht später FastAPI über `from_attributes`.
+- **Ein Konzept pro Schritt.** Parametrize erst, wenn viele gleichartige Fälle da sind.
+- **Dict aus der Fixture:** `payload = valid_fertilizer_payload.copy()` und danach ein Feld setzen.
+- **Git:** Commit von LE 2.2 auf `le-2-2-fertilizer-schemas`. LE 2.3 auf eigenem Branch. Nicht ungefragt pushen. `main` lag hinter dem Arbeitsstand.
+- Persönliche Alembic-Anleitung: `notes/alembic-tabelle-fertilizers.md` (gitignored).
+- Sitzungsende immer über `docs/kistart.md` Abschnitt „Sitzung beenden“.
 
-Diese Punkte braucht die nächste Session; sie stehen nicht zuverlässig im Chat.
+## Nicht als Nächstes
 
-- **Ein Konzept pro Schritt.** Parametrize (`@pytest.mark.parametrize`) war zu früh und wurde zurückgenommen. Fixture + `conftest.py` reichen für LE 1.7. Parametrize erst, wenn viele gleichartige Fälle da sind.
-- **Dict aus der Fixture:** `payload = valid_fertilizer_payload.copy()` und danach ein Feld setzen. Nicht `{**dict, "name": ""}`.
-- **Git liegt hinter dem Lernstand.** Branch noch `le-1-6-alembic`, obwohl LE 1.7 und 2.1 fertig sind. `main` war als `[gone]` sichtbar. Vor der nächsten LE Branch-Lage klären. Nicht drei Lerneinheiten auf einem Branch mischen. Nicht ungefragt committen.
-- Persönliche Alembic-Anleitung des Lernenden: `notes/alembic-tabelle-fertilizers.md`.
-- Sitzungsende immer über `docs/kistart.md` Abschnitt „Sitzung beenden“: Stand hier fortschreiben, nichts Wichtiges nur im Chat lassen.
+- Fertilizer-CRUD-Router und FastAPI-`Depends` (LE 2.4)
+- alle fünf Service-Methoden in einem Rutsch
+- Parametrize
+- ungefragt pushen
+
