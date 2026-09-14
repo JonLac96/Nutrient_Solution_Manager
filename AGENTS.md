@@ -489,7 +489,7 @@ Sie beschreibt:
 
 ## `docs/workflow.md`
 
-Diese Datei beschreibt den Git-, Branch- und Review-Ablauf für das Python-Projekt.
+Diese Datei beschreibt den Git- und Review-Ablauf für das Python-Projekt. Commits gehen auf `main`.
 
 ---
 

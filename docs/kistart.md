@@ -186,12 +186,13 @@ Erst danach Konzept oder Code anpassen.
 
 ## [`workflow.md`](workflow.md)
 
-Diese Datei beschreibt den Git-, Branch- und Review-Ablauf.
+Diese Datei beschreibt den Git- und Review-Ablauf.
 
 Sie wird insbesondere benötigt, wenn:
 
 - neue Features entwickelt werden,
-- Branches erstellt werden,
+- Commits auf `main` gemacht werden,
+- ausnahmsweise ein Branch für ein Experiment nötig ist,
 - Code zwischen verschiedenen Entwicklungsumgebungen bearbeitet wird,
 - ein Review durchgeführt wird.
 
@@ -459,13 +460,12 @@ außer dem, was in diesen Dateien steht.
    - Was bewusst *nicht* als Nächstes kommt
 3. Keine offenen Absprachen nur im Chat lassen (z. B. „Parametrize später“, „du tippst ab LE 2.2“).
 4. Kurz dem Lernenden sagen, was geschrieben wurde und was die nächste Session als Erstes tun soll.
-5. Nicht ungefragt committen, branchen oder die nächste Lerneinheit starten.
+5. Nicht ungefragt committen oder die nächste Lerneinheit starten.
 
 Beispiel für Hinweise, die in Abschnitt 8 gehören:
 
 - ein Konzept war zu früh und wurde zurückgestellt
 - eine Syntax wurde bewusst einfach gehalten
-- Git-Branch passt nicht zur aktuellen LE
 - der Lernende schreibt den nächsten Code selbst
 
 ---

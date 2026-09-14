@@ -1,4 +1,4 @@
-# Workflow – Git, Branches und Review
+# Workflow – Git und Review
 
 Dieser Ablauf gilt für das aktuelle Python-Projekt.
 
@@ -19,22 +19,15 @@ Bei Widersprüchen zuerst den Lernenden fragen, dann bewusst Docs oder Code anpa
 
 ---
 
-# 2. Branch-Modell
+# 2. Arbeitsmodell
 
-- `main` enthält nur einen funktionierenden Stand nach abgeschlossenen Schritten.
-- Neue Arbeit entsteht auf einem eigenen Branch.
-- Ein Branch gehört zu **einer** Lerneinheit oder zu **einem** kleinen Feature.
+Das Projekt wird **allein** entwickelt. Deshalb gilt seit 2026-09-14:
 
-Namensbeispiele:
+- Neue Arbeit entsteht **direkt auf `main`**.
+- `main` soll trotzdem ein nachvollziehbarer Stand bleiben: lieber kleine, thematische Commits als ein Sammelcommit am Ende einer LE.
+- Feature-Branches sind **optional** — nur bei Experimenten, riskanten Umbauten oder späterer Teamarbeit.
 
-```text
-le-1-1-projektstruktur
-le-2-1-fertilizer-crud
-feature/tank-messungen
-fix/alembic-revision
-```
-
-Nicht mehrere Lerneinheiten in einem Branch mischen.
+Früher galt „eine LE = ein Branch, danach mergen“. Das haben wir bewusst aufgegeben, weil der Extra-Schritt ohne Team wenig Nutzen hatte und `main` hinter den Feature-Branches zurückblieb.
 
 ---
 
@@ -43,7 +36,7 @@ Nicht mehrere Lerneinheiten in einem Branch mischen.
 ```text
 Aktuellen nächsten Schritt im Lernpfad lesen
         ↓
-Branch von aktuellem main erstellen
+Auf main arbeiten
         ↓
 Kleinen Schritt umsetzen
         ↓
@@ -55,7 +48,7 @@ Nächster Schritt erst nach Bestätigung
         ↓
 Nach Abschluss: Status in lernpfad.md aktualisieren
         ↓
-In main mergen
+Auf main committen (nur wenn der Lernende das will)
 ```
 
 Der Agent wartet bei größeren neuen Schritten auf Bestätigung.
@@ -85,7 +78,7 @@ Ohne klare Antwort keines der drei tun.
 
 # 5. Review
 
-Vor dem Merge prüft der Agent bzw. der Lernende:
+Vor dem Commit einer abgeschlossenen LE prüft der Agent bzw. der Lernende:
 
 - Entspricht der Stand dem Lernziel der aktuellen Lerneinheit?
 - Laufen die vorhandenen Tests?
@@ -96,13 +89,14 @@ Fachliche Kernlogik (Berechnungen, Regelkreise) schreibt der Lernende. Der Agent
 
 ---
 
-# 6. Merge
+# 6. Remote und optionale Branches
 
-- Nach erfolgreichem Checkpoint in `main` mergen.
 - `main` nicht per Force-Push überschreiben.
-- Nach dem Merge den Feature-Branch löschen, wenn er nicht mehr benötigt wird.
+- Nicht ungefragt pushen.
+- Pull Requests sind erlaubt, für lokale Lernschritte nicht nötig.
+- Entsteht doch ein Branch: nach dem Checkpoint nach `main` mergen und den Branch löschen, wenn er nicht mehr gebraucht wird.
 
-Pull Requests sind erlaubt und nützlich, aber für lokale Lernschritte nicht zwingend.
+Alte LE-Branches (`le-1-6-alembic`, `le-2-2-fertilizer-schemas`, …) sind Historie. Neue Arbeit nicht darauf fortsetzen.
 
 ---
 
@@ -112,3 +106,4 @@ Pull Requests sind erlaubt und nützlich, aber für lokale Lernschritte nicht zw
 - mehrere neue Konzepte in einem Schritt vollständig einführen
 - Infrastruktur und Fachlogik in einem ungeprüften Block fertigstellen
 - auf einen anderen Stack ausweichen als in `lernpfad.md` festgelegt
+- ungefragt eine neue Feature-Branch-Serie für jede Lerneinheit anlegen

@@ -37,6 +37,7 @@ Der Lernpfad ist ein lebendes Dokument. Wir passen ihn an, wenn sich beim Entwic
 | Hardware-Kommunikation | später MQTT |
 | Hardware | später ESP32 und Sensorik |
 | Repository | GitHub |
+| Git-Arbeitsweise | **Commits auf `main`** (Branches nur bei Bedarf) |
 | Code-Formatierung | Ruff als Formatter/Linter, finale Konfiguration im Projekt |
 | Abhängigkeitsverwaltung | **uv** + `pyproject.toml` inkl. Lockfile |
 
@@ -577,7 +578,7 @@ Gemeinsam, danach Review.
 
 ### Status
 
-⬜ offen
+🔶 in Arbeit
 
 ---
 
@@ -1259,7 +1260,7 @@ Dadurch wird verhindert, dass große Teile des Projekts entstehen, ohne dass die
 
 # 8. Aktueller nächster Schritt
 
-Stand 2026-09-14 (LE 2.2 abgeschlossen, LE 2.3 wird als Nächstes begonnen).
+Stand 2026-09-14 (LE 2.3 gestartet).
 
 ## Abgeschlossen
 
@@ -1275,11 +1276,11 @@ Stand 2026-09-14 (LE 2.2 abgeschlossen, LE 2.3 wird als Nächstes begonnen).
 
 ## In Arbeit
 
-Keine Lerneinheit im Commit-Stand von LE 2.2. Nächster Schritt: **LE 2.3 – Fertilizer Service** auf neuem Branch `le-2-3-fertilizer-service`.
+**LE 2.3 – Fertilizer Service.** Arbeit direkt auf `main`.
 
 ## Nächster Schritt
 
-LE 2.3 beginnen: Service Layer, Session als Parameter, erstes gemeinsames Beispiel `create`. Noch keine REST-CRUD-Endpunkte (LE 2.4), noch kein FastAPI-`Depends`.
+Erstes gemeinsames Beispiel: `FertilizerService.create`. Danach `get` / `get_all` / `update` / `delete` der Lernende.
 
 ### Arbeitsweise (verbindlich)
 
@@ -1295,7 +1296,7 @@ Ab **LE 2.2** schreibt der Lernende wiederkehrende Muster selbst. LE 2.3 ist das
 - Service gibt das ORM-Objekt `Fertilizer` zurück, nicht `FertilizerResponse`. Die Umwandlung macht später FastAPI über `from_attributes`.
 - **Ein Konzept pro Schritt.** Parametrize erst, wenn viele gleichartige Fälle da sind.
 - **Dict aus der Fixture:** `payload = valid_fertilizer_payload.copy()` und danach ein Feld setzen.
-- **Git:** Commit von LE 2.2 auf `le-2-2-fertilizer-schemas`. LE 2.3 auf eigenem Branch. Nicht ungefragt pushen. `main` lag hinter dem Arbeitsstand.
+- **Git:** Seit 2026-09-14 Commits direkt auf **`main`**. Keine LE-Branches mehr. Nicht ungefragt pushen. Alte Branches (`le-1-6-alembic`, `le-2-2-fertilizer-schemas`, `le-2-3-fertilizer-service`) nicht weiterbenutzen.
 - Persönliche Alembic-Anleitung: `notes/alembic-tabelle-fertilizers.md` (gitignored).
 - Sitzungsende immer über `docs/kistart.md` Abschnitt „Sitzung beenden“.
 
