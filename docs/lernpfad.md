@@ -608,7 +608,7 @@ Erstes Beispiel gemeinsam.
 
 ### Status
 
-🔶 in Arbeit
+✅ abgeschlossen
 
 ---
 
@@ -630,7 +630,7 @@ Gemeinsam.
 
 ### Status
 
-⬜ offen
+🔶 in Arbeit
 
 ---
 
@@ -1260,51 +1260,54 @@ Dadurch wird verhindert, dass große Teile des Projekts entstehen, ohne dass die
 
 # 8. Aktueller nächster Schritt
 
-Stand 2026-09-14 (LE 2.3 abgeschlossen, LE 2.4 gestartet).
+Stand 2026-09-15, LE 2.4 abgeschlossen, LE 2.5 begonnen.
 
 ## Abgeschlossen
 
-- **LE 1.1** – Projektstruktur, `.venv`, uv, `pyproject.toml`, Hatchling
-- **LE 1.2** – FastAPI: `GET /`, `GET /health`, Path `GET /tanks/{tank_id}`, Query `GET /plants`
-- **LE 1.3** – Pydantic: `FertilizerCreate` / `FertilizerResponse`, `POST /fertilizers`, `Field`-Constraints, 422 bei ungültigen Daten
-- **LE 1.4** – Docker Compose: Service `db` (PostgreSQL 17), `.env` / `.env.example`, Volume `postgres_data`, Verbindung per DBeaver auf `localhost:5432`
-- **LE 1.5** – SQLAlchemy: Engine, Session, `Base`, `DemoRecord`, `GET /health/db`, `GET`/`POST /demo-records` (Session noch ohne FastAPI-`Depends`)
-- **LE 1.6** – Alembic: erste Revision `5a5b99cdf83a` (`demo_records`), `upgrade head`, `create_all` entfernt, `env.py` lädt Modelle über `from app import models`
-- **LE 1.7** – pytest: `tests/unit/`, Assertions, AAA, Fixture `valid_fertilizer_payload` in `conftest.py`, Tests für `FertilizerCreate`
-- **LE 2.1** – Fertilizer-Model, Alembic-Revision `b2741119ca18` (`fertilizers`), `upgrade head`; Notiz in `notes/alembic-tabelle-fertilizers.md`
-- **LE 2.2** – Pydantic-Schemas `FertilizerCreate` / `FertilizerUpdate` / `FertilizerResponse`; `id: int`; `ConfigDict(from_attributes=True)`; Unit-Tests in `tests/unit/test_fertilizer_schema.py`. Primärschlüssel INTEGER Auto-Increment (Revision `626c042a758a`).
-- **LE 2.3** – `FertilizerService` in `app/services/fertilizer.py`: `create`, `get`, `get_all`, `update`, `delete`. Session als Konstruktor-Argument. Fehlende Id → `LookupError`. Update per `model_dump(exclude_unset=True)`.
+- **LE 1.1–1.7** – Phase 1 (Projekt, FastAPI, Pydantic, Docker/Postgres, SQLAlchemy, Alembic, pytest)
+- **LE 2.1** – Fertilizer-Model, Revision `b2741119ca18`
+- **LE 2.2** – Schemas `FertilizerCreate` / `FertilizerUpdate` / `FertilizerResponse`; `id: int`; `from_attributes=True`; Tests in `tests/unit/test_fertilizer_schema.py`. Primärschlüssel INTEGER Auto-Increment, Revision `626c042a758a`. Commit `d5d3917`
+- **LE 2.3** – `FertilizerService` (`app/services/fertilizer.py`): `create`, `get`, `get_all`, `update`, `delete`. Session im Konstruktor. Fehlende Id → `LookupError`. Update: `model_dump(exclude_unset=True)`. Commit `6022bdf`
+- **LE 2.4** – Fertilizer API CRUD: `app/api/dependencies.py` (`get_db` mit `yield`), `app/api/routers/fertilizers.py` (POST 201, GET Liste, GET Detail, PUT, DELETE 204). `LookupError` → `HTTPException(404)` im Router. Dummy-`POST /fertilizers` in `app/main.py` entfernt, Router per `include_router` eingebunden. Verben außer POST vom Lernenden.
+- Git-Arbeitsweise bewusst auf **Commits auf `main`** umgestellt (`docs/workflow.md`, Commit `aea9b37`)
 
 ## In Arbeit
 
-**LE 2.4 – Fertilizer API CRUD.** Arbeit auf `main`. Erstes gemeinsames Beispiel: `POST /fertilizers` an den Service hängen (`Depends` für die Session). Danach die übrigen Endpunkte der Lernende.
+**LE 2.5 – Fertilizer Tests** (🔶). Lernziel: Unit-, Integrations- und API-Tests unterscheiden (Service, Datenbank, HTTP). Bisher nur Schema-Unit-Tests in `tests/unit/`. Ordner `tests/integration/` und `tests/api/` existieren noch nicht.
 
 ## Nächster Schritt
 
-Gemeinsames Muster: `get_db` + `APIRouter` + echter `POST /fertilizers`. Anschließend `GET /fertilizers`, `GET /fertilizers/{id}` (LookupError → HTTP 404), `PUT`, `DELETE`.
+Drei Testebenen kurz einordnen, dann **einen** ersten Test gemeinsam: Service-Test für fehlende Id (`get` → `LookupError`), noch ohne HTTP und ohne alle CRUD-Fälle.
+
+Erst nach Bestätigung Code schreiben. Nicht alle drei Ebenen in einem Rutsch.
 
 ### Arbeitsweise (verbindlich)
 
-LE 2.4 ist das **erste** CRUD-Router-Beispiel und darf gemeinsam entstehen: erst `POST` gemeinsam, danach die anderen Verben der Lernende mit Review. Ab Phase 3 wieder der Lernende.
+LE 2.5 ist das **erste** Test-Muster für Service/API und darf gemeinsam entstehen. Danach weitere Fälle zunehmend der Lernende. Service nicht um HTTP erweitern. Ab Phase 3 wieder der Lernende.
 
-**Nach jeder Lerneinheit** den Lernenden fragen: abschließen? committen? nächste LE beginnen? Nichts davon ungefragt tun.
+**Nach jeder Lerneinheit** fragen: abschließen? committen? nächste LE beginnen?
 
-## Hinweise (Stand 2026-09-14)
+## Hinweise aus den Sitzungen
 
-- **Primärschlüssel:** INTEGER Auto-Increment. Create schickt keine Id; PostgreSQL vergibt sie; Response `id: int`. `DemoRecord` bleibt UUID (LE-1.5-Demo).
-- Service gibt ORM-`Fertilizer` zurück. FastAPI macht daraus `FertilizerResponse` über `from_attributes`.
-- Session per FastAPI-`Depends` (`yield` / `with SessionLocal()`), nicht mehr `with SessionLocal()` direkt in jedem Endpunkt (Demo-Records dürfen vorerst so bleiben).
-- `LookupError` aus dem Service wird im Router zu `HTTPException(status_code=404)`.
-- **Git:** Commits auf `main`. Nicht ungefragt pushen. Alte LE-Branches nicht weiterbenutzen.
-- **Ein Konzept pro Schritt.** Parametrize erst, wenn viele gleichartige Fälle da sind.
-- Persönliche Alembic-Anleitung: `notes/alembic-tabelle-fertilizers.md` (gitignored).
+- **Primärschlüssel:** INTEGER Auto-Increment, nicht UUID. Create ohne Id; DB vergibt sie; Response `id: int`. `DemoRecord` bleibt UUID.
+- Service gibt ORM-`Fertilizer` zurück, nicht `FertilizerResponse`. FastAPI wandelt über `from_attributes` um.
+- `LookupError` im Service, `HTTPException(404)` erst im Router. Decorator-`status_code` gilt nur im Erfolgsfall (POST 201, DELETE 204; GET/PUT bleiben 200).
+- `get`/`update`/`delete`: fehlende Id über `self.get(...)` (ein Fehlerpfad).
+- Pydantic-Update: `data.model_dump(exclude_unset=True)`, Variable z. B. `updates` — nicht `.items()` direkt auf dem Schema.
+- FastAPI-`Depends(get_db)` für Fertilizer-Routen. Demo-Records dürfen `with SessionLocal()` behalten.
+- Python, nicht C#: f-String `f"..."`, nicht `$"..."`; `if value is not None`, nicht `value not None`; Typen an der Funktion (`-> list[Fertilizer]`), nicht `list Fertilizer x =`. `except`, nicht `exept`. `try`/`except` einrücken. Methodenaufruf braucht `()`.
+- Vor Reviews **speichern** (Editor und Platte liefen auseinander).
+- **Git:** Arbeit auf `main`. `origin/main` ist `[gone]`. Nicht ungefragt pushen. Alte Branches (`le-1-6-alembic`, `le-2-2-fertilizer-schemas`, `le-2-3-fertilizer-service`, …) nicht weiterbenutzen.
+- Parametrize bleibt zurückgestellt. Fixture: `.copy()`, dann ein Feld setzen.
+- Alembic-Notiz des Lernenden: `notes/alembic-tabelle-fertilizers.md` (gitignored).
 - Sitzungsende immer über `docs/kistart.md` Abschnitt „Sitzung beenden“.
 
 ## Nicht als Nächstes
 
-- alle fünf CRUD-Endpunkte in einem Rutsch
-- Service-Tests / API-Tests (LE 2.5)
-- Demo-Records auf den Service-Schnitt umbauen
+- alle Service-, DB- und API-Tests in einem Rutsch
+- Testcontainers (laut Lernpfad später)
+- Demo-Records auf Service/`Depends` umbauen
+- Plant CRUD (LE 3.1)
 - Parametrize
 - ungefragt pushen
 

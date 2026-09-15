@@ -1,14 +1,15 @@
 from fastapi import FastAPI
 from sqlalchemy import select, text
 
+from app.api.routers.fertilizers import router as fertilizers_router
 from app.core.database import SessionLocal, engine
 from app.models import DemoRecord
-from app.schemas.fertilizer import FertilizerCreate, FertilizerResponse
 
 app = FastAPI(
     title="Nutrient Solution Manager",
     version="0.1.0",
 )
+app.include_router(fertilizers_router)
 
 
 @app.get("/")
@@ -55,12 +56,4 @@ def list_plants(name: str | None = None) -> dict[str, str | None]:
     return {"filter_name": name}
 
 
-@app.post("/fertilizers", response_model=FertilizerResponse)
-def create_fertilizer(payload: FertilizerCreate) -> FertilizerResponse:
-    return FertilizerResponse(
-        id=1,
-        name=payload.name,
-        description=payload.description,
-        ec_effect_per_ml_per_liter=payload.ec_effect_per_ml_per_liter,
-    )
 
