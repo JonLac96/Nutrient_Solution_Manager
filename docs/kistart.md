@@ -40,7 +40,7 @@ Kurzfassung:
   - Pydantic
   - SQLAlchemy
   - Alembic
-  - PostgreSQL
+  - SQLite
   - Docker
   - Testing
 
@@ -92,11 +92,10 @@ Der aktuelle technische Schwerpunkt ist:
 - FastAPI
 - Pydantic
 - SQLAlchemy
-- PostgreSQL
+- SQLite
 - Alembic
 - pytest
 - Docker
-- Docker Compose
 
 ---
 
@@ -166,7 +165,7 @@ Dort stehen unter anderem:
 - FastAPI
 - Pydantic
 - SQLAlchemy
-- PostgreSQL
+- SQLite
 - Docker
 - Entwicklungsphasen
 
@@ -226,7 +225,7 @@ Service Layer
 SQLAlchemy
      │
      ▼
-PostgreSQL
+SQLite
 ```
 
 Wichtige Architekturregel:
@@ -234,7 +233,7 @@ Wichtige Architekturregel:
 Die fachliche Kernlogik soll möglichst unabhängig von:
 
 - FastAPI
-- PostgreSQL
+- SQLite
 - SQLAlchemy
 - Docker
 - MQTT
@@ -385,7 +384,7 @@ Testen mehrere Komponenten zusammen.
 
 Beispiele:
 
-- SQLAlchemy und PostgreSQL
+- SQLAlchemy und SQLite
 - Service und Datenbank
 - Beziehungen zwischen Models
 

@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 
 from app.api.dependencies import get_db
 from app.models.fertilizer import Fertilizer
-from app.schemas.fertilizer import FertilizerCreate, FertilizerResponse
+from app.schemas.fertilizer import FertilizerCreate, FertilizerResponse, FertilizerUpdate
 from app.services.fertilizer import FertilizerService
 
 router = APIRouter(prefix="/fertilizers", tags=["fertilizers"])
@@ -44,16 +44,17 @@ def update_fertilizer(
 ) -> Fertilizer:
     service = FertilizerService(session)
     try:
-        return service.update(fertilizer_id = fertilizer_id, data = data)
+        return service.update(fertilizer_id, data)
     except LookupError as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc
 
-@router.delete("/{fertilizer_id}")
+@router.delete("/{fertilizer_id}" , status_code=204)
 def delete_fertilizer(
     fertilizer_id: int,
     session: Session = Depends(get_db)
 ):
+    service = FertilizerService(session)
     try:
-        service.delete(fertilizer_id = fertilizer_id)
+        service.delete(fertilizer_id)
     except LookupError as exc:
-        raise HTTPException(status_code=404, detail=str(exc)) from ex
+        raise HTTPException(status_code=404, detail=str(exc)) from exc

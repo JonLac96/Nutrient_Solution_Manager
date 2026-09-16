@@ -26,6 +26,12 @@ htmlcov/
 .env.*
 !.env.example
 
+# Lokale SQLite-Datenbank
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+
 # Betriebssystem
 .DS_Store
 Thumbs.db

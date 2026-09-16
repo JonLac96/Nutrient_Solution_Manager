@@ -20,13 +20,12 @@ Der geplante Haupt-Stack besteht aus:
 - FastAPI
 - Pydantic
 - SQLAlchemy
-- PostgreSQL
+- SQLite
 - Alembic
 - Docker
-- Docker Compose
 - pytest
 - uv und `pyproject.toml`
-- INTEGER Auto-Increment als Primärschlüssel (PostgreSQL `SERIAL` / `IDENTITY`)
+- INTEGER Auto-Increment als Primärschlüssel (SQLite `INTEGER PRIMARY KEY`)
 
 Spätere Erweiterungen:
 
@@ -45,13 +44,13 @@ Mit dem Projekt sollen insbesondere folgende Technologien und Konzepte praktisch
 
 - Entwicklung von REST APIs mit FastAPI
 - Datenvalidierung mit Pydantic
-- Datenbankmodellierung mit PostgreSQL
+- Datenbankmodellierung mit SQLite
 - ORM mit SQLAlchemy
 - Datenbankmigrationen mit Alembic
 - Dependency Injection in FastAPI
 - Service-orientierte Architektur
 - Trennung von API, Fachlogik und Infrastruktur
-- Docker und Docker Compose
+- Docker später (Phase 7)
 - automatisierte Tests mit pytest
 - Simulation von Sensoren und Aktoren
 - später MQTT-Kommunikation
@@ -521,7 +520,7 @@ Service Layer
 SQLAlchemy
      │
      ▼
-PostgreSQL
+SQLite
 ```
 
 Die FastAPI Router enthalten möglichst wenig Fachlogik.
@@ -563,7 +562,7 @@ Pydantic beschreibt:
 
 # 19. Datenmodell
 
-Die geplanten Kernobjekte sind. Alle `Id`-Felder sind ganze Zahlen (`INTEGER`). Die Datenbank vergibt sie beim INSERT (`AUTO INCREMENT` / PostgreSQL `SERIAL` bzw. `IDENTITY`).
+Die geplanten Kernobjekte sind. Alle `Id`-Felder sind ganze Zahlen (`INTEGER`). Die Datenbank vergibt sie beim INSERT (`AUTO INCREMENT` / SQLite `INTEGER PRIMARY KEY`).
 
 ## Plant
 
@@ -758,7 +757,6 @@ nutrient-solution-manager/
 ├── alembic/
 │
 ├── Dockerfile
-├── docker-compose.yml
 ├── pyproject.toml
 └── README.md
 ```
@@ -816,7 +814,7 @@ Beispiele:
 Diese Komponenten sollen möglichst unabhängig von:
 
 - FastAPI
-- PostgreSQL
+- SQLite
 - SQLAlchemy
 - MQTT
 
@@ -832,7 +830,7 @@ Verantwortlich für externe Systeme.
 
 Beispiele:
 
-- PostgreSQL
+- SQLite
 - SQLAlchemy
 - Sensor-Simulation
 - MQTT
@@ -842,7 +840,7 @@ Beispiele:
 
 # 23. Datenbank
 
-Als Datenbank wird PostgreSQL verwendet.
+Als Datenbank wird SQLite verwendet (Datei `nsm.db` im Projektroot).
 
 SQLAlchemy übernimmt die Abbildung zwischen Python-Objekten und Datenbanktabellen.
 
@@ -911,7 +909,7 @@ Tests für:
 Tests für:
 
 - SQLAlchemy
-- PostgreSQL
+- SQLite
 - Services
 - Datenbankbeziehungen
 
@@ -928,18 +926,15 @@ Tests für:
 
 # 26. Docker
 
-Die Anwendung wird containerisiert.
+Die Anwendung wird später containerisiert (Phase 7). Lokal läuft die Datenbank als SQLite-Datei, nicht als Container.
 
 Geplante Services:
 
 ```text
 docker-compose
 │
-├── api
-│   └── FastAPI
-│
-└── database
-    └── PostgreSQL
+└── api
+    └── FastAPI
 ```
 
 Später optional:
@@ -959,8 +954,7 @@ Später optional:
 
 - Python-Projekt erstellen
 - FastAPI einrichten
-- PostgreSQL einrichten
-- Docker Compose einrichten
+- SQLite einrichten
 - SQLAlchemy konfigurieren
 - Alembic konfigurieren
 - Grundstruktur erstellen
@@ -1092,7 +1086,7 @@ Die erste Version benötigt:
 
 Stattdessen wird zunächst mit:
 
-- PostgreSQL
+- SQLite
 - FastAPI
 - Pydantic
 - SQLAlchemy

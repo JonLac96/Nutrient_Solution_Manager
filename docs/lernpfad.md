@@ -24,16 +24,15 @@ Der Lernpfad ist ein lebendes Dokument. Wir passen ihn an, wenn sich beim Entwic
 | Web Framework | **FastAPI** |
 | Datenvalidierung | **Pydantic** |
 | ORM | **SQLAlchemy** |
-| Datenbank | **PostgreSQL** |
+| Datenbank | **SQLite** (Datei `nsm.db` im Projektroot) |
 | Datenbankmigrationen | **Alembic** |
 | Tests | **pytest** |
 | HTTP/API-Tests | FastAPI TestClient bzw. httpx |
-| Integrationstest-Datenbank | PostgreSQL im Docker-Testcontainer bzw. später Testcontainers |
+| Integrationstest-Datenbank | SQLite (Datei bzw. später Testdatei) |
 | API-Dokumentation | Automatisch durch FastAPI (OpenAPI, Swagger UI und ReDoc) |
-| Containerisierung | **Docker** |
-| Lokale Services | **Docker Compose** |
+| Containerisierung | **Docker** später (Phase 7), kein Datenbank-Container |
 | Architektur | API → Service → Fachlogik → Infrastruktur |
-| Primärschlüssel | **INTEGER, Auto-Increment** (PostgreSQL: `SERIAL` / `IDENTITY`) |
+| Primärschlüssel | **INTEGER, Auto-Increment** (SQLite: `INTEGER PRIMARY KEY`) |
 | Hardware-Kommunikation | später MQTT |
 | Hardware | später ESP32 und Sensorik |
 | Repository | GitHub |
@@ -67,12 +66,12 @@ Service Layer
 SQLAlchemy
      │
      ▼
-PostgreSQL
+SQLite
 ```
 
 Wichtig:
 
-Die eigentliche Fachlogik soll möglichst unabhängig von FastAPI und PostgreSQL bleiben.
+Die eigentliche Fachlogik soll möglichst unabhängig von FastAPI und der Datenbank bleiben.
 
 Dadurch kann dieselbe Fachlogik später verwendet werden für:
 
@@ -151,7 +150,7 @@ Beispiele:
 
 - Service speichert Daten über SQLAlchemy
 - Beziehungen zwischen Plant und GrowthStage funktionieren
-- PostgreSQL-Persistenz
+- SQLite-Persistenz
 - Datenbankconstraints
 
 ---
@@ -224,7 +223,6 @@ nutrient-solution-manager/
 ├── alembic/
 │
 ├── Dockerfile
-├── docker-compose.yml
 ├── pyproject.toml
 └── README.md
 ```
@@ -245,7 +243,7 @@ Status-Legende:
 
 Ziel dieser Phase:
 
-Eine lauffähige Python-Anwendung mit FastAPI, PostgreSQL, SQLAlchemy und Docker aufbauen.
+Eine lauffähige Python-Anwendung mit FastAPI, SQLite, SQLAlchemy aufbauen.
 
 ---
 
@@ -358,24 +356,24 @@ Gemeinsam.
 
 ---
 
-## LE 1.4 – Docker Compose + PostgreSQL
+## LE 1.4 – SQLite als lokale Datenbank
 
 ### Lernziel
 
-Containerisierung und Datenbankbetrieb verstehen.
+Eine dateibasierte Datenbank verstehen und lokal betreiben.
 
 Themen:
 
-- Docker Container
-- Docker Compose
-- PostgreSQL
-- Environment Variables
-- Volumes
-- Persistenz
+- SQLite
+- Unterschied zu einem Datenbankserver
+- Datenbankdatei im Projektroot
+- Persistenz ohne Container
+
+Ursprünglich Docker Compose + PostgreSQL. Am 2026-09-16 bewusst auf SQLite (`nsm.db`) umgestellt.
 
 ### Ergebnis
 
-PostgreSQL läuft über Docker Compose.
+Die Datei `nsm.db` liegt im Projektroot. Alembic erzeugt die Tabellen.
 
 ### Wer schreibt
 
@@ -404,7 +402,7 @@ Themen:
 
 ### Ergebnis
 
-Ein minimales SQLAlchemy-Modell kann mit PostgreSQL verbunden werden.
+Ein minimales SQLAlchemy-Modell kann mit SQLite verbunden werden.
 
 ### Wer schreibt
 
@@ -487,7 +485,7 @@ Service
  ↓
 SQLAlchemy
  ↓
-PostgreSQL
+SQLite
 ```
 
 ---
@@ -875,7 +873,7 @@ Die zentrale Fachlogik des Systems entwickeln.
 Diese Phase ist bewusst weitgehend unabhängig von:
 
 - FastAPI
-- PostgreSQL
+- SQLite
 - Docker
 - MQTT
 
@@ -1171,9 +1169,7 @@ Mehrere Services gemeinsam starten.
 ```text
 Docker Compose
 │
-├── API
-│
-└── PostgreSQL
+└── API
 ```
 
 Später:
@@ -1260,54 +1256,79 @@ Dadurch wird verhindert, dass große Teile des Projekts entstehen, ohne dass die
 
 # 8. Aktueller nächster Schritt
 
-Stand 2026-09-15, LE 2.4 abgeschlossen, LE 2.5 begonnen.
+Stand 2026-09-16.
 
 ## Abgeschlossen
 
-- **LE 1.1–1.7** – Phase 1 (Projekt, FastAPI, Pydantic, Docker/Postgres, SQLAlchemy, Alembic, pytest)
+- **LE 1.1–1.7** – Phase 1
 - **LE 2.1** – Fertilizer-Model, Revision `b2741119ca18`
-- **LE 2.2** – Schemas `FertilizerCreate` / `FertilizerUpdate` / `FertilizerResponse`; `id: int`; `from_attributes=True`; Tests in `tests/unit/test_fertilizer_schema.py`. Primärschlüssel INTEGER Auto-Increment, Revision `626c042a758a`. Commit `d5d3917`
-- **LE 2.3** – `FertilizerService` (`app/services/fertilizer.py`): `create`, `get`, `get_all`, `update`, `delete`. Session im Konstruktor. Fehlende Id → `LookupError`. Update: `model_dump(exclude_unset=True)`. Commit `6022bdf`
-- **LE 2.4** – Fertilizer API CRUD: `app/api/dependencies.py` (`get_db` mit `yield`), `app/api/routers/fertilizers.py` (POST 201, GET Liste, GET Detail, PUT, DELETE 204). `LookupError` → `HTTPException(404)` im Router. Dummy-`POST /fertilizers` in `app/main.py` entfernt, Router per `include_router` eingebunden. Verben außer POST vom Lernenden.
-- Git-Arbeitsweise bewusst auf **Commits auf `main`** umgestellt (`docs/workflow.md`, Commit `aea9b37`)
+- **LE 2.2** – Schemas; `id: int`; `from_attributes=True`; `tests/unit/test_fertilizer_schema.py`. Revision `626c042a758a`. Commit `d5d3917`
+- **LE 2.3** – `FertilizerService` in `app/services/fertilizer.py`. Commit `6022bdf`
+- **LE 2.4** – Fertilizer API CRUD. Dateien: `app/api/dependencies.py`, `app/api/routers/fertilizers.py`, `app/main.py` (`include_router`, Dummy-POST entfernt). Commit `cc86dd0`
+- Git-Arbeitsweise: Commits auf `main` (`docs/workflow.md`, Commit `aea9b37`)
+- **Datenbank-Wechsel (2026-09-16):** Docker-PostgreSQL durch SQLite ersetzt. Datei `nsm.db` im Projektroot. `docker-compose.yml` entfernt. `psycopg` und `python-dotenv` aus den Abhängigkeiten entfernt. Docs (`lernpfad.md`, `projektkonzept.md`, `kistart.md`) auf SQLite umgestellt.
 
 ## In Arbeit
 
-**LE 2.5 – Fertilizer Tests** (🔶). Lernziel: Unit-, Integrations- und API-Tests unterscheiden (Service, Datenbank, HTTP). Bisher nur Schema-Unit-Tests in `tests/unit/`. Ordner `tests/integration/` und `tests/api/` existieren noch nicht.
+**LE 2.5 – Fertilizer Tests** (🔶). Drei Testebenen wurden erklärt; es gibt noch **keinen** neuen Testcode. Weiterhin nur Schema-Unit-Tests in `tests/unit/`. `tests/integration/` und `tests/api/` existieren nicht.
 
-## Nächster Schritt
+Die drei Ebenen (nicht nochmal von Null erfinden):
 
-Drei Testebenen kurz einordnen, dann **einen** ersten Test gemeinsam: Service-Test für fehlende Id (`get` → `LookupError`), noch ohne HTTP und ohne alle CRUD-Fälle.
+| Ebene | Fertilizer-Beispiel | Darf fehlen |
+|---|---|---|
+| Unit | Schema lehnt leeren Namen ab (`tests/unit/`) | DB, HTTP |
+| Integration | Service speichert über SQLAlchemy in SQLite | HTTP / FastAPI |
+| API | `POST /fertilizers` → 201 | — (darf DB nutzen) |
 
-Erst nach Bestätigung Code schreiben. Nicht alle drei Ebenen in einem Rutsch.
+Vereinbarter **erster** Test (noch nicht geschrieben):
+
+```text
+Arrange: FertilizerService mit einer Session
+Act:     get() mit einer Id, die nicht existiert
+Assert:  LookupError
+```
+
+Kein HTTP, kein `TestClient`, nicht alle CRUD-Fälle.
+
+## Nächster Schritt in der nächsten Sitzung
+
+1. `docs/kistart.md` lesen, dann **diesen gesamten Abschnitt**.
+2. Kurz zusammenfassen und auf Bestätigung warten.
+3. Erklären, wie die SQLAlchemy-Session in den Test kommt (SQLite-Datei, noch keine separate Testdatenbank).
+4. Danach gemeinsam den einen Service-Test oben schreiben.
 
 ### Arbeitsweise (verbindlich)
 
-LE 2.5 ist das **erste** Test-Muster für Service/API und darf gemeinsam entstehen. Danach weitere Fälle zunehmend der Lernende. Service nicht um HTTP erweitern. Ab Phase 3 wieder der Lernende.
+LE 2.5 ist das **erste** Muster für Service-/Integrations- und später API-Tests: erstes Beispiel gemeinsam, weitere Fälle zunehmend der Lernende. Service nicht um HTTP erweitern. Ab Phase 3 wieder der Lernende.
 
 **Nach jeder Lerneinheit** fragen: abschließen? committen? nächste LE beginnen?
 
 ## Hinweise aus den Sitzungen
 
-- **Primärschlüssel:** INTEGER Auto-Increment, nicht UUID. Create ohne Id; DB vergibt sie; Response `id: int`. `DemoRecord` bleibt UUID.
-- Service gibt ORM-`Fertilizer` zurück, nicht `FertilizerResponse`. FastAPI wandelt über `from_attributes` um.
-- `LookupError` im Service, `HTTPException(404)` erst im Router. Decorator-`status_code` gilt nur im Erfolgsfall (POST 201, DELETE 204; GET/PUT bleiben 200).
+- **Datenbank:** SQLite, Datei `nsm.db` im Projektroot (gitignored). URL in `app/core/config.py`. Engine mit `check_same_thread=False` (SQLite + FastAPI). Alembic: `render_as_batch=True`, weil SQLite `ALTER TABLE` nur eingeschränkt kann.
+- **Primärschlüssel:** INTEGER Auto-Increment. Create ohne Id; DB vergibt sie; Response `id: int`. `DemoRecord` bleibt UUID.
+- Service gibt ORM-`Fertilizer` zurück. FastAPI macht `FertilizerResponse` über `from_attributes`.
+- `LookupError` nur im Service; `HTTPException(404)` nur im Router (`try`/`except LookupError as exc`, `detail=str(exc)`, `from exc`). Ohne Mapping würde FastAPI 500 liefern.
+- Decorator-`status_code` gilt nur im **Erfolgsfall** (POST **201**, DELETE **204**; GET/PUT Default **200**). `HTTPException` überschreibt das. Pydantic-Fehler sind **422**.
 - `get`/`update`/`delete`: fehlende Id über `self.get(...)` (ein Fehlerpfad).
-- Pydantic-Update: `data.model_dump(exclude_unset=True)`, Variable z. B. `updates` — nicht `.items()` direkt auf dem Schema.
-- FastAPI-`Depends(get_db)` für Fertilizer-Routen. Demo-Records dürfen `with SessionLocal()` behalten.
-- Python, nicht C#: f-String `f"..."`, nicht `$"..."`; `if value is not None`, nicht `value not None`; Typen an der Funktion (`-> list[Fertilizer]`), nicht `list Fertilizer x =`. `except`, nicht `exept`. `try`/`except` einrücken. Methodenaufruf braucht `()`.
-- Vor Reviews **speichern** (Editor und Platte liefen auseinander).
-- **Git:** Arbeit auf `main`. `origin/main` ist `[gone]`. Nicht ungefragt pushen. Alte Branches (`le-1-6-alembic`, `le-2-2-fertilizer-schemas`, `le-2-3-fertilizer-service`, …) nicht weiterbenutzen.
+- Pydantic-Update: `data.model_dump(exclude_unset=True)`.
+- Fertilizer-Routen: `Depends(get_db)`. Demo-Records dürfen `with SessionLocal()` behalten.
+- Python, nicht C#: `f"..."`, `is not None`, `except` (nicht `exept`), `try`/`except` einrücken, Methodenaufruf mit `()`, Typen `-> list[Fertilizer]`.
+- Vor Reviews **speichern**.
+- **Git:** Arbeit auf `main`. Letzter Code-Commit LE 2.4: `cc86dd0`. `origin/main` ist `[gone]`. Nicht ungefragt pushen. Alte LE-Branches nicht weiterbenutzen. Der SQLite-Wechsel ist **uncommittet**, bis der Lernende committen will.
 - Parametrize bleibt zurückgestellt. Fixture: `.copy()`, dann ein Feld setzen.
-- Alembic-Notiz des Lernenden: `notes/alembic-tabelle-fertilizers.md` (gitignored).
+- Alembic-Notiz: `notes/alembic-tabelle-fertilizers.md` (gitignored).
 - Sitzungsende immer über `docs/kistart.md` Abschnitt „Sitzung beenden“.
 
 ## Nicht als Nächstes
 
+- Testcode schreiben, bevor Session-Strategie erklärt und bestätigt ist
 - alle Service-, DB- und API-Tests in einem Rutsch
-- Testcontainers (laut Lernpfad später)
+- PostgreSQL oder Docker Compose zurückholen
+- Testcontainers
 - Demo-Records auf Service/`Depends` umbauen
 - Plant CRUD (LE 3.1)
 - Parametrize
-- ungefragt pushen
+- ungefragt committen oder pushen
+
 

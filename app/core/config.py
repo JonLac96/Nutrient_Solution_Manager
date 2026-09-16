@@ -1,15 +1,8 @@
-import os
-from urllib.parse import quote_plus
+from pathlib import Path
 
-from dotenv import load_dotenv
-
-load_dotenv()
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+SQLITE_PATH = PROJECT_ROOT / "nsm.db"
 
 
 def database_url() -> str:
-    user = os.environ["POSTGRES_USER"]
-    password = quote_plus(os.environ["POSTGRES_PASSWORD"])
-    host = os.getenv("POSTGRES_HOST", "localhost")
-    port = os.getenv("POSTGRES_PORT", "5432")
-    name = os.environ["POSTGRES_DB"]
-    return f"postgresql+psycopg://{user}:{password}@{host}:{port}/{name}"
+    return f"sqlite:///{SQLITE_PATH.as_posix()}"
