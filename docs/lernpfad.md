@@ -628,7 +628,7 @@ Gemeinsam.
 
 ### Status
 
-🔶 in Arbeit
+✅ abgeschlossen
 
 ---
 
@@ -652,7 +652,7 @@ Du.
 
 ### Status
 
-⬜ offen
+🔶 in Arbeit
 
 ---
 
@@ -1256,7 +1256,7 @@ Dadurch wird verhindert, dass große Teile des Projekts entstehen, ohne dass die
 
 # 8. Aktueller nächster Schritt
 
-Stand 2026-09-16.
+Stand 2026-09-18.
 
 ## Abgeschlossen
 
@@ -1264,71 +1264,66 @@ Stand 2026-09-16.
 - **LE 2.1** – Fertilizer-Model, Revision `b2741119ca18`
 - **LE 2.2** – Schemas; `id: int`; `from_attributes=True`; `tests/unit/test_fertilizer_schema.py`. Revision `626c042a758a`. Commit `d5d3917`
 - **LE 2.3** – `FertilizerService` in `app/services/fertilizer.py`. Commit `6022bdf`
-- **LE 2.4** – Fertilizer API CRUD. Dateien: `app/api/dependencies.py`, `app/api/routers/fertilizers.py`, `app/main.py` (`include_router`, Dummy-POST entfernt). Commit `cc86dd0`
+- **LE 2.4** – Fertilizer API CRUD. Dateien: `app/api/dependencies.py`, `app/api/routers/fertilizers.py`, `app/main.py`. Commit `cc86dd0`
 - Git-Arbeitsweise: Commits auf `main` (`docs/workflow.md`, Commit `aea9b37`)
-- **Datenbank-Wechsel (2026-09-16):** Docker-PostgreSQL durch SQLite ersetzt. Datei `nsm.db` im Projektroot. `docker-compose.yml` entfernt. `psycopg` und `python-dotenv` aus den Abhängigkeiten entfernt. Docs (`lernpfad.md`, `projektkonzept.md`, `kistart.md`) auf SQLite umgestellt.
+- **Datenbank-Wechsel (2026-09-16):** Docker-PostgreSQL durch SQLite ersetzt (`nsm.db` im Projektroot). Commit `8015bff`
+- **LE 2.5** – Drei Testebenen am Fertilizer: Unit (`tests/unit/test_fertilizer_schema.py`), Integration (`tests/integration/test_fertilizer_service.py`: get-fehlend, create, update, delete), API (`tests/api/test_fertilizers.py`: POST 201, GET fehlend 404). `get_all` und 422 bewusst nicht als Pflicht.
 
 ## In Arbeit
 
-**LE 2.5 – Fertilizer Tests** (🔶). Drei Testebenen wurden erklärt; es gibt noch **keinen** neuen Testcode. Weiterhin nur Schema-Unit-Tests in `tests/unit/`. `tests/integration/` und `tests/api/` existieren nicht.
+**LE 3.1 – Plant** (🔶). Zweites CRUD-Feature, Muster von Fertilizer. **Der Lernende schreibt.**
 
-Die drei Ebenen (nicht nochmal von Null erfinden):
+Felder laut Projektkonzept:
 
-| Ebene | Fertilizer-Beispiel | Darf fehlen |
-|---|---|---|
-| Unit | Schema lehnt leeren Namen ab (`tests/unit/`) | DB, HTTP |
-| Integration | Service speichert über SQLAlchemy in SQLite | HTTP / FastAPI |
-| API | `POST /fertilizers` → 201 | — (darf DB nutzen) |
+- Id (INTEGER Auto-Increment)
+- Name
+- Description
 
-Vereinbarter **erster** Test (noch nicht geschrieben):
-
-```text
-Arrange: FertilizerService mit einer Session
-Act:     get() mit einer Id, die nicht existiert
-Assert:  LookupError
-```
-
-Kein HTTP, kein `TestClient`, nicht alle CRUD-Fälle.
+Noch kein Code für Plant. GrowthStage (LE 3.2) kommt erst danach – Plant hat in 3.1 noch keine Beziehung.
 
 ## Nächster Schritt in der nächsten Sitzung
 
 1. `docs/kistart.md` lesen, dann **diesen gesamten Abschnitt**.
-2. Kurz zusammenfassen und auf Bestätigung warten.
-3. Erklären, wie die SQLAlchemy-Session in den Test kommt (SQLite-Datei, noch keine separate Testdatenbank).
-4. Danach gemeinsam den einen Service-Test oben schreiben.
+2. Kurz zusammenfassen.
+3. Lernender schreibt das SQLAlchemy-Model `Plant` analog zu `Fertilizer` (`app/models/plant.py`, in `app/models/__init__.py` exportieren).
+4. Danach Review, dann Alembic-Migration für Tabelle `plants`.
+
+Nicht in einem Rutsch: Model + Schemas + Service + Router + Tests.
 
 ### Arbeitsweise (verbindlich)
 
-LE 2.5 ist das **erste** Muster für Service-/Integrations- und später API-Tests: erstes Beispiel gemeinsam, weitere Fälle zunehmend der Lernende. Service nicht um HTTP erweitern. Ab Phase 3 wieder der Lernende.
+Ab Phase 3 schreibt der Lernende. Agent: Schnittstelle/Felder, Review, Debugging. Fertilizer bleibt das Muster, nicht kopieren und umbenennen ohne zu verstehen.
 
 **Nach jeder Lerneinheit** fragen: abschließen? committen? nächste LE beginnen?
 
 ## Hinweise aus den Sitzungen
 
-- **Datenbank:** SQLite, Datei `nsm.db` im Projektroot (gitignored). URL in `app/core/config.py`. Engine mit `check_same_thread=False` (SQLite + FastAPI). Alembic: `render_as_batch=True`, weil SQLite `ALTER TABLE` nur eingeschränkt kann.
-- **Primärschlüssel:** INTEGER Auto-Increment. Create ohne Id; DB vergibt sie; Response `id: int`. `DemoRecord` bleibt UUID.
-- Service gibt ORM-`Fertilizer` zurück. FastAPI macht `FertilizerResponse` über `from_attributes`.
-- `LookupError` nur im Service; `HTTPException(404)` nur im Router (`try`/`except LookupError as exc`, `detail=str(exc)`, `from exc`). Ohne Mapping würde FastAPI 500 liefern.
-- Decorator-`status_code` gilt nur im **Erfolgsfall** (POST **201**, DELETE **204**; GET/PUT Default **200**). `HTTPException` überschreibt das. Pydantic-Fehler sind **422**.
-- `get`/`update`/`delete`: fehlende Id über `self.get(...)` (ein Fehlerpfad).
+- **Datenbank:** SQLite, Datei `nsm.db` im Projektroot (gitignored). URL in `app/core/config.py`. Engine mit `check_same_thread=False`. Alembic: `render_as_batch=True`.
+- **Tests:** Unit ohne DB/HTTP. Integration: Service + `SessionLocal()`, fehlende Id → `LookupError` (nicht `None`). Persistenz mit **zweiter** Session prüfen (Identity Map). API: `TestClient`, Statuscodes (201, 404, 422). Tests schreiben in dieselbe `nsm.db`.
+- Tests nicht aneinander hängen (`test_update` darf nicht `test_create()` aufrufen). Arrange im Test selbst. Default-Argumente werden beim Import ausgewertet.
+- `FertilizerUpdate` für Teil-Updates, nicht `FertilizerCreate`. `SessionLocal()` aufrufen.
+- **Primärschlüssel:** INTEGER Auto-Increment. Create ohne Id; Response `id: int`. `DemoRecord` bleibt UUID.
+- Service gibt ORM zurück. FastAPI macht Response über `from_attributes`.
+- `LookupError` nur im Service; `HTTPException(404)` nur im Router.
+- Decorator-`status_code` nur im Erfolgsfall. Pydantic-Fehler sind **422**.
+- `get`/`update`/`delete`: fehlende Id über `self.get(...)`.
 - Pydantic-Update: `data.model_dump(exclude_unset=True)`.
-- Fertilizer-Routen: `Depends(get_db)`. Demo-Records dürfen `with SessionLocal()` behalten.
-- Python, nicht C#: `f"..."`, `is not None`, `except` (nicht `exept`), `try`/`except` einrücken, Methodenaufruf mit `()`, Typen `-> list[Fertilizer]`.
+- Fertilizer-Routen: `Depends(get_db)`.
+- Python, nicht C#: `f"..."`, `is not None`, `except`, Aufruf mit `()`.
 - Vor Reviews **speichern**.
-- **Git:** Arbeit auf `main`. Letzter Code-Commit LE 2.4: `cc86dd0`. `origin/main` ist `[gone]`. Nicht ungefragt pushen. Alte LE-Branches nicht weiterbenutzen. Der SQLite-Wechsel ist **uncommittet**, bis der Lernende committen will.
+- **Git:** Arbeit auf `main`. `origin/main` ist `[gone]`. Nicht ungefragt pushen.
 - Parametrize bleibt zurückgestellt. Fixture: `.copy()`, dann ein Feld setzen.
 - Alembic-Notiz: `notes/alembic-tabelle-fertilizers.md` (gitignored).
 - Sitzungsende immer über `docs/kistart.md` Abschnitt „Sitzung beenden“.
 
 ## Nicht als Nächstes
 
-- Testcode schreiben, bevor Session-Strategie erklärt und bestätigt ist
-- alle Service-, DB- und API-Tests in einem Rutsch
+- GrowthStage / Foreign Keys (LE 3.2)
+- Plant-CRUD in einem Schritt (Model+API+Tests zusammen)
 - PostgreSQL oder Docker Compose zurückholen
-- Testcontainers
+- Testcontainers / eigene Testdatenbank
 - Demo-Records auf Service/`Depends` umbauen
-- Plant CRUD (LE 3.1)
 - Parametrize
-- ungefragt committen oder pushen
+- ungefragt pushen
 
 
