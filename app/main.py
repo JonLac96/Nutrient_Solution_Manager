@@ -1,15 +1,17 @@
 from fastapi import FastAPI
-from sqlalchemy import select, text
+from sqlalchemy import text
 
-from app.api.routers.fertilizers import router as fertilizers_router
-from app.core.database import SessionLocal, engine
-from app.models import DemoRecord
+from app.api.routers.fertilizers import router as router_fertilizer
+from app.api.routers.plants import router as router_plant
+from app.core.database import engine
+
 
 app = FastAPI(
     title="Nutrient Solution Manager",
     version="0.1.0",
 )
-app.include_router(fertilizers_router)
+app.include_router(router_fertilizer)
+app.include_router(router_plant)
 
 
 @app.get("/")
@@ -29,31 +31,6 @@ def health_db() -> dict[str, str]:
     return {"database": "ok"}
 
 
-@app.get("/demo-records")
-def list_demo_records() -> list[dict[str, str]]:
-    with SessionLocal() as session:
-        records = session.scalars(select(DemoRecord)).all()
-        return [{"id": str(record.id), "name": record.name} for record in records]
-
-
-@app.post("/demo-records")
-def create_demo_record(name: str) -> dict[str, str]:
-    with SessionLocal() as session:
-        record = DemoRecord(name=name)
-        session.add(record)
-        session.commit()
-        session.refresh(record)
-        return {"id": str(record.id), "name": record.name}
-
-
-@app.get("/tanks/{tank_id}")
-def read_tank(tank_id: str) -> dict[str, str]:
-    return {"tank_id": tank_id}
-
-
-@app.get("/plants")
-def list_plants(name: str | None = None) -> dict[str, str | None]:
-    return {"filter_name": name}
 
 
 

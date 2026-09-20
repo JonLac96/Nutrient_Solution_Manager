@@ -18,6 +18,7 @@ class FertilizerService:
         self._session.add(fertilizer)
         self._session.commit()
         self._session.refresh(fertilizer)
+        
         return fertilizer
 
     def get(self, fertilizer_id: int) -> Fertilizer:
