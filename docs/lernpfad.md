@@ -652,7 +652,7 @@ Du.
 
 ### Status
 
-🔶 in Arbeit
+✅ abgeschlossen
 
 ---
 
@@ -680,7 +680,7 @@ Du, mit Review.
 
 ### Status
 
-⬜ offen
+🔶 in Arbeit
 
 ---
 
@@ -1256,74 +1256,69 @@ Dadurch wird verhindert, dass große Teile des Projekts entstehen, ohne dass die
 
 # 8. Aktueller nächster Schritt
 
-Stand 2026-09-18.
+Stand 2026-09-20.
 
 ## Abgeschlossen
 
 - **LE 1.1–1.7** – Phase 1
-- **LE 2.1** – Fertilizer-Model, Revision `b2741119ca18`
-- **LE 2.2** – Schemas; `id: int`; `from_attributes=True`; `tests/unit/test_fertilizer_schema.py`. Revision `626c042a758a`. Commit `d5d3917`
-- **LE 2.3** – `FertilizerService` in `app/services/fertilizer.py`. Commit `6022bdf`
-- **LE 2.4** – Fertilizer API CRUD. Dateien: `app/api/dependencies.py`, `app/api/routers/fertilizers.py`, `app/main.py`. Commit `cc86dd0`
-- Git-Arbeitsweise: Commits auf `main` (`docs/workflow.md`, Commit `aea9b37`)
-- **Datenbank-Wechsel (2026-09-16):** Docker-PostgreSQL durch SQLite ersetzt (`nsm.db` im Projektroot). Commit `8015bff`
-- **LE 2.5** – Drei Testebenen am Fertilizer: Unit (`tests/unit/test_fertilizer_schema.py`), Integration (`tests/integration/test_fertilizer_service.py`: get-fehlend, create, update, delete), API (`tests/api/test_fertilizers.py`: POST 201, GET fehlend 404). `get_all` und 422 bewusst nicht als Pflicht.
+- **LE 2.1–2.5** – Fertilizer durch alle Schichten inkl. Tests. Commits u. a. `cc86dd0`, `bc85ca4`
+- **Datenbank:** SQLite `nsm.db`. Commit `8015bff`
+- **LE 3.1 – Plant** – Model `app/models/plant.py`, Revision `6966518b98df`, Schemas, `PlantService`, Router `/plants`, Tests (Unit leer-Name, Integration get-fehlend, API POST 201). Fixtures in `tests/conftest.py`. Dummy-`GET /plants` und Demo-Record-Routen aus `main.py` entfernt. Commit folgt mit den Tests.
 
 ## In Arbeit
 
-**LE 3.1 – Plant** (🔶). Zweites CRUD-Feature, Muster von Fertilizer. **Der Lernende schreibt.**
+**LE 3.2 – GrowthStage** (🔶). Erste **1:n-Beziehung**. **Der Lernende schreibt.**
+
+```text
+Plant  1 ──n  GrowthStage
+```
 
 Felder laut Projektkonzept:
 
 - Id (INTEGER Auto-Increment)
+- PlantId (Foreign Key → `plants.id`)
 - Name
-- Description
+- Order
+- EcMin, EcTarget, EcMax
+- PhMin, PhTarget, PhMax
 
-Noch kein Code für Plant. GrowthStage (LE 3.2) kommt erst danach – Plant hat in 3.1 noch keine Beziehung.
+Noch kein GrowthStage-Code. Recipe (LE 3.3) kommt danach.
 
 ## Nächster Schritt in der nächsten Sitzung
 
 1. `docs/kistart.md` lesen, dann **diesen gesamten Abschnitt**.
-2. Kurz zusammenfassen.
-3. Lernender schreibt das SQLAlchemy-Model `Plant` analog zu `Fertilizer` (`app/models/plant.py`, in `app/models/__init__.py` exportieren).
-4. Danach Review, dann Alembic-Migration für Tabelle `plants`.
+2. Kurz: Was ist ein Foreign Key? (siehe Hinweise)
+3. Lernender schreibt nur das SQLAlchemy-Model `GrowthStage` in `app/models/growth_stage.py`, Export in `__init__.py`.
+4. Review, dann Alembic (`create growth_stages`).
 
-Nicht in einem Rutsch: Model + Schemas + Service + Router + Tests.
+Nicht in einem Rutsch: Relationship-Attribute, Schemas, Service, Router, Tests.
+
+`order` ist in SQL ein Schlüsselwort. Spaltenname im Code: `sort_order` (Python/snake_case), Konzeptfeld bleibt „Order“.
 
 ### Arbeitsweise (verbindlich)
 
-Ab Phase 3 schreibt der Lernende. Agent: Schnittstelle/Felder, Review, Debugging. Fertilizer bleibt das Muster, nicht kopieren und umbenennen ohne zu verstehen.
+Ab Phase 3 schreibt der Lernende. Agent: Konzept, Review. Plant/Fertilizer sind Muster; Foreign Key ist neu – erst erklären, dann Model.
 
 **Nach jeder Lerneinheit** fragen: abschließen? committen? nächste LE beginnen?
 
 ## Hinweise aus den Sitzungen
 
-- **Datenbank:** SQLite, Datei `nsm.db` im Projektroot (gitignored). URL in `app/core/config.py`. Engine mit `check_same_thread=False`. Alembic: `render_as_batch=True`.
-- **Tests:** Unit ohne DB/HTTP. Integration: Service + `SessionLocal()`, fehlende Id → `LookupError` (nicht `None`). Persistenz mit **zweiter** Session prüfen (Identity Map). API: `TestClient`, Statuscodes (201, 404, 422). Tests schreiben in dieselbe `nsm.db`.
-- Tests nicht aneinander hängen (`test_update` darf nicht `test_create()` aufrufen). Arrange im Test selbst. Default-Argumente werden beim Import ausgewertet.
-- `FertilizerUpdate` für Teil-Updates, nicht `FertilizerCreate`. `SessionLocal()` aufrufen.
-- **Primärschlüssel:** INTEGER Auto-Increment. Create ohne Id; Response `id: int`. `DemoRecord` bleibt UUID.
-- Service gibt ORM zurück. FastAPI macht Response über `from_attributes`.
-- `LookupError` nur im Service; `HTTPException(404)` nur im Router.
-- Decorator-`status_code` nur im Erfolgsfall. Pydantic-Fehler sind **422**.
-- `get`/`update`/`delete`: fehlende Id über `self.get(...)`.
-- Pydantic-Update: `data.model_dump(exclude_unset=True)`.
-- Fertilizer-Routen: `Depends(get_db)`.
-- Python, nicht C#: `f"..."`, `is not None`, `except`, Aufruf mit `()`.
-- Vor Reviews **speichern**.
-- **Git:** Arbeit auf `main`. `origin/main` ist `[gone]`. Nicht ungefragt pushen.
-- Parametrize bleibt zurückgestellt. Fixture: `.copy()`, dann ein Feld setzen.
-- Alembic-Notiz: `notes/alembic-tabelle-fertilizers.md` (gitignored).
-- Sitzungsende immer über `docs/kistart.md` Abschnitt „Sitzung beenden“.
+- **Datenbank:** SQLite, `nsm.db` (gitignored). `check_same_thread=False`. Alembic: `render_as_batch=True`.
+- **Tests:** Unit ohne DB/HTTP. Integration: `LookupError`, nicht `None`. Persistenz: **zweite** Session. API: `TestClient`. Fixture-Ort: `tests/conftest.py` (gilt für unit/integration/api). `.copy()` vor Mutation. Testdateien vor pytest **speichern**.
+- `include_router` braucht `router` aus dem Modul, nicht das Modul selbst.
+- `exclude_unset=True` bei Updates, nicht `exclude_none`.
+- `from_attributes=True` nur am Response-Schema (ORM → JSON).
+- `LookupError` im Service, `HTTPException(404)` im Router.
+- **Git:** `main`. `origin/main` ist `[gone]`. Nicht ungefragt pushen.
+- Parametrize zurückgestellt.
+- Sitzungsende: `docs/kistart.md` „Sitzung beenden“.
 
 ## Nicht als Nächstes
 
-- GrowthStage / Foreign Keys (LE 3.2)
-- Plant-CRUD in einem Schritt (Model+API+Tests zusammen)
-- PostgreSQL oder Docker Compose zurückholen
-- Testcontainers / eigene Testdatenbank
-- Demo-Records auf Service/`Depends` umbauen
+- Recipe / RecipeItem (LE 3.3+)
+- GrowthStage-CRUD komplett in einem Schritt
+- PostgreSQL / Docker Compose / Testcontainers
+- Demo-Records wieder anbauen
 - Parametrize
 - ungefragt pushen
-
 
