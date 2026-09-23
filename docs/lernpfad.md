@@ -1256,69 +1256,126 @@ Dadurch wird verhindert, dass große Teile des Projekts entstehen, ohne dass die
 
 # 8. Aktueller nächster Schritt
 
-Stand 2026-09-20.
+Stand 2026-09-20, Sitzung beendet.
 
 ## Abgeschlossen
 
 - **LE 1.1–1.7** – Phase 1
 - **LE 2.1–2.5** – Fertilizer durch alle Schichten inkl. Tests. Commits u. a. `cc86dd0`, `bc85ca4`
-- **Datenbank:** SQLite `nsm.db`. Commit `8015bff`
-- **LE 3.1 – Plant** – Model `app/models/plant.py`, Revision `6966518b98df`, Schemas, `PlantService`, Router `/plants`, Tests (Unit leer-Name, Integration get-fehlend, API POST 201). Fixtures in `tests/conftest.py`. Dummy-`GET /plants` und Demo-Record-Routen aus `main.py` entfernt. Commit folgt mit den Tests.
+- **Datenbank:** SQLite `nsm.db` (gitignored). Commit `8015bff`
+- **LE 3.1 – Plant** – Model `app/models/plant.py`, Revision `6966518b98df`, Schemas, `PlantService`, Router `/plants` (`include_router` mit `router`, nicht dem Modul). Tests: Unit leerer Name, Integration `get` → `LookupError`, API `POST /plants` → 201. Gemeinsame Fixtures in `tests/conftest.py` (nicht unter `tests/unit/`). Dummy-`GET /plants` und Demo-Record-Routen aus `main.py` entfernt. Plant-CRUD-Code: Commit `2cd03a8`. Tests + Fixture-Umzug: Commit `507f7d3`
+- **LE 3.2 Teil 1 (Model + Migration, noch ohne `relationship()`):**
+  - Datei `app/models/growth_stage.py`, Klasse `GrowthStage`, `__tablename__ = "growth_stages"`
+  - `plant_id: Mapped[int] = mapped_column(ForeignKey("plants.id"))` — Tabellenname `plants`, nicht Klassenname `Plant`
+  - `sort_order` (nicht `order`), Pflichtfeld: `Mapped[int]` **ohne** `nullable=True`
+  - EC/pH-Felder als `Float`
+  - Export in `app/models/__init__.py` zusammen mit `DemoRecord`, `Fertilizer`, `Plant`
+  - Alembic: `uv run alembic revision --autogenerate -m "create growth_stages"` → `alembic/versions/5b10439fdc69_create_growth_stages.py`
+  - Review der Migration: `create_table('growth_stages')`, `ForeignKeyConstraint` auf `plants.id`, **kein** `drop_table('demo_records')`, `down_revision = 6966518b98df`
+  - `uv run alembic upgrade head` (Running upgrade `6966518b98df` → `5b10439fdc69`). Tabelle in `nsm.db` vom Lernenden geprüft, sieht gut aus
 
 ## In Arbeit
 
-**LE 3.2 – GrowthStage** (🔶). Erste **1:n-Beziehung**. **Der Lernende schreibt.**
+**LE 3.2 – GrowthStage** (🔶). Foreign Key und Tabelle stehen. **`relationship()` ist erklärt, aber noch nicht im Code.** Der Lernende schreibt als Nächstes beide Seiten.
 
 ```text
 Plant  1 ──n  GrowthStage
 ```
 
-Felder laut Projektkonzept:
+Aktueller Code (ohne relationship): `app/models/growth_stage.py`, `app/models/plant.py`. Keine neue Spalte, keine neue Migration für relationship.
 
-- Id (INTEGER Auto-Increment)
-- PlantId (Foreign Key → `plants.id`)
-- Name
-- Order
-- EcMin, EcTarget, EcMax
-- PhMin, PhTarget, PhMax
+## Erste Handlung der nächsten Session (verbindlich)
 
-Noch kein GrowthStage-Code. Recipe (LE 3.3) kommt danach.
-
-## Nächster Schritt in der nächsten Sitzung
+Der Lernende hat gebeten, **zu Beginn noch einmal genau die Relationship-Erklärung dieser Sitzung zu wiederholen.** Nicht sofort Code schreiben. Nicht Alembic. Nicht Schemas/Service/Router.
 
 1. `docs/kistart.md` lesen, dann **diesen gesamten Abschnitt**.
-2. Kurz: Was ist ein Foreign Key? (siehe Hinweise)
-3. Lernender schreibt nur das SQLAlchemy-Model `GrowthStage` in `app/models/growth_stage.py`, Export in `__init__.py`.
-4. Review, dann Alembic (`create growth_stages`).
+2. Kurz zusammenfassen (LE 3.2, Model+Migration fertig, als Nächstes `relationship()`).
+3. **`relationship()` noch einmal vollständig erklären** — Inhalt unten Wort für Wort bzw. inhaltlich vollständig, nicht kürzen.
+4. Auf Bestätigung warten, dann schreibt der Lernende beide Seiten selbst. Danach Review.
 
-Nicht in einem Rutsch: Relationship-Attribute, Schemas, Service, Router, Tests.
+### Was als Erstes zu erklären ist: `relationship()` (Inhalt der Erklärung)
 
-`order` ist in SQL ein Schlüsselwort. Spaltenname im Code: `sort_order` (Python/snake_case), Konzeptfeld bleibt „Order“.
+Checkpoint der letzten Sitzung: Tabelle und Migration passen. `relationship()` ist der **zweite** Schritt von LE 3.2, noch ohne Schemas/Service/Router.
+
+**Was ist `relationship()`?**
+
+Der **Foreign Key** (`plant_id`) lebt in der Datenbank: „Diese Zeile gehört zu `plants.id`.“
+
+`relationship()` ist **kein** Datenbankfeld. Es ist eine Python-Bequemlichkeit von SQLAlchemy:
+
+```text
+stadium.plant          → die eine Plant
+pflanze.growth_stages  → die Liste der Stadien
+```
+
+Ohne `relationship()` müsstest du immer selbst `SELECT … WHERE plant_id = …` schreiben.
+
+**Warum hier?**
+
+Später brauchen Service und Regulation Engine die Stadien einer Pflanze (EC/pH-Ziele). Die Verknüpfung soll am Objekt hängen, nicht nur als Integer-ID.
+
+**Wo?**
+
+Auf **beiden** Seiten, mit demselben Namen wie das Attribut der Gegenseite (`back_populates`):
+
+| Klasse | Attribut | Typ |
+|---|---|---|
+| `GrowthStage` | `plant` | eine `Plant` |
+| `Plant` | `growth_stages` | `list` von `GrowthStage` |
+
+Das erzeugt **keine** neue Spalte. Alembic Autogenerate sollte danach nichts Neues finden.
+
+**Alternative**
+
+Nur `plant_id` und selbst joinen. Funktioniert, wird aber bei jeder Abfrage repetitiv. `relationship()` ist der übliche SQLAlchemy-Weg.
+
+**Worauf der Lernende achten muss**
+
+1. Import: `relationship` aus `sqlalchemy.orm` (zusätzlich zu `Mapped`, `mapped_column`).
+2. Typen in Anführungszeichen schreiben: `Mapped["Plant"]` und `Mapped[list["GrowthStage"]]`. Sonst importieren sich die beiden Dateien gegenseitig.
+3. `back_populates="plant"` muss zum Attributnamen auf der anderen Klasse passen, und umgekehrt `"growth_stages"`.
+
+Beispiel nur zur Form (nicht abschreiben müssen, selbst in die Dateien setzen):
+
+```python
+plant: Mapped["Plant"] = relationship(back_populates="growth_stages")
+```
+
+```python
+growth_stages: Mapped[list["GrowthStage"]] = relationship(back_populates="plant")
+```
+
+Der Lernende schreibt beide Seiten (`growth_stage.py` und `plant.py`). Danach Review. **Keine neue Migration**, keine Schemas.
 
 ### Arbeitsweise (verbindlich)
 
-Ab Phase 3 schreibt der Lernende. Agent: Konzept, Review. Plant/Fertilizer sind Muster; Foreign Key ist neu – erst erklären, dann Model.
+Ab Phase 3 schreibt der Lernende. Agent: Konzept, Review, Debugging. Plant/Fertilizer sind CRUD-Muster; Foreign Key ist erledigt; `relationship()` ist das aktuelle neue Konzept von LE 3.2.
 
 **Nach jeder Lerneinheit** fragen: abschließen? committen? nächste LE beginnen?
 
 ## Hinweise aus den Sitzungen
 
-- **Datenbank:** SQLite, `nsm.db` (gitignored). `check_same_thread=False`. Alembic: `render_as_batch=True`.
-- **Tests:** Unit ohne DB/HTTP. Integration: `LookupError`, nicht `None`. Persistenz: **zweite** Session. API: `TestClient`. Fixture-Ort: `tests/conftest.py` (gilt für unit/integration/api). `.copy()` vor Mutation. Testdateien vor pytest **speichern**.
-- `include_router` braucht `router` aus dem Modul, nicht das Modul selbst.
-- `exclude_unset=True` bei Updates, nicht `exclude_none`.
-- `from_attributes=True` nur am Response-Schema (ORM → JSON).
-- `LookupError` im Service, `HTTPException(404)` im Router.
-- **Git:** `main`. `origin/main` ist `[gone]`. Nicht ungefragt pushen.
+- **Datenbank:** SQLite, `nsm.db`. Engine: `check_same_thread=False`. Alembic: `render_as_batch=True`. Autogenerate braucht Model-Import in `app/models/__init__.py`.
+- **`DemoRecord`:** Model-Datei `app/models/demo.py` und Export in `__init__.py` **behalten**. Die Demo-**Routen** bleiben weg. In dieser Sitzung war `demo.py` gelöscht → `ModuleNotFoundError: No module named 'app.models.demo'` beim Autogenerate. Datei aus HEAD wiederhergestellt. Fehlt das Model, schlägt Autogenerate oft `drop_table('demo_records')` vor — das nicht in die GrowthStage-Migration mischen.
+- **`sort_order`:** Pflichtfeld. Nicht `Mapped[int]` zusammen mit `nullable=True`. Kein ungenutztes `Text`-Import in `growth_stage.py`.
+- **Tests:** Unit ohne DB/HTTP. Integration: `LookupError`, nicht `None`. Persistenz: **zweite** Session (Identity Map). API: `TestClient`, Status 201/404/422. Fixtures: `tests/conftest.py`. `.copy()` vor Mutation. Testdateien **speichern**, sonst sammelt pytest sie nicht.
+- `include_router(plants)` mit dem **Modul** ist falsch; `from app.api.routers.plants import router as router_plant`.
+- Update: `model_dump(exclude_unset=True)`, nicht `exclude_none`.
+- `from_attributes=True` nur am Response-Schema (ORM → JSON). Create/Update brauchen das nicht.
+- `LookupError` im Service, `HTTPException(404)` im Router (`from exc`).
+- `__init__` eines Services gibt `None` zurück, nicht das Model.
+- **Git:** Arbeit auf `main`. Letzter Commit `507f7d3`. `origin/main` ist `[gone]`. Nicht ungefragt pushen. Uncommittet nach dieser Sitzung: `app/models/growth_stage.py`, `app/models/__init__.py`, `alembic/versions/5b10439fdc69_create_growth_stages.py`, `docs/lernpfad.md`. `nsm.db` nicht committen.
 - Parametrize zurückgestellt.
-- Sitzungsende: `docs/kistart.md` „Sitzung beenden“.
+- SQLite-Inhalt lokal z. B. Extension **SQLite Viewer** (`qwtel.sqlite-viewer`).
+- Sitzungsende immer über `docs/kistart.md` Abschnitt „Sitzung beenden“.
 
 ## Nicht als Nächstes
 
+- Neue Alembic-Revision nur wegen `relationship()` (keine neue Spalte)
+- GrowthStage-Schemas/Service/Router/Tests im selben Schritt wie `relationship()`
 - Recipe / RecipeItem (LE 3.3+)
-- GrowthStage-CRUD komplett in einem Schritt
 - PostgreSQL / Docker Compose / Testcontainers
-- Demo-Records wieder anbauen
+- Demo-Records-API wieder anbauen oder `demo_records` droppen
 - Parametrize
-- ungefragt pushen
+- ungefragt committen oder pushen
 
