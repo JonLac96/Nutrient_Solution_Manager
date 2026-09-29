@@ -1256,7 +1256,7 @@ Dadurch wird verhindert, dass große Teile des Projekts entstehen, ohne dass die
 
 # 8. Aktueller nächster Schritt
 
-Stand 2026-09-23, Sitzung beendet.
+Stand 2026-09-29, Sitzung beendet.
 
 ## Abgeschlossen
 
@@ -1271,17 +1271,19 @@ Stand 2026-09-23, Sitzung beendet.
     - `GrowthStage.plant: Mapped["Plant"] = relationship(back_populates="growth_stages")`
     - `Plant.growth_stages: Mapped[list["GrowthStage"]] = relationship(back_populates="plant")`
   - `sort_order` Pflichtfeld (`Mapped[int]`, nicht `nullable=True`). EC/pH als `Float`. Export in `app/models/__init__.py` mit `DemoRecord`, `Fertilizer`, `Plant`
-- **LE 3.2 Schemas** — `app/schemas/growth_stage.py`, Review bestanden, **noch nicht committet**:
-  - `GrowthStageCreate`, `GrowthStageUpdate`, `GrowthStageResponse` (nicht `PlantResponse`)
-  - `name`: `min_length=1`, `max_length=100` auf Create und Update (Spalte `String(100)`)
-  - Response: `from_attributes=True`, Felder `id`, `plant_id`, `name`, `sort_order`, sechs EC/pH-Felder. Kein Attribut `plant`
-  - `plant_id` auf Create und Response, **nicht** auf Update (Stadium wechselt die Pflanze nicht)
-  - EC/pH: `Field(gt=0.0)`. `ec_min <= ec_target <= ec_max` (und pH analog) ist bewusst noch nicht drin
-- **LE 3.2 Service** — `app/services/growth_stage.py`, zweites Review bestanden, **noch nicht committet**. Methoden `create`, `get`, `get_all`, `update`, `delete`. `create` setzt `plant_id` und die übrigen Spalten, nicht `plant`
+- **LE 3.2 Schemas + Service** — `app/schemas/growth_stage.py`, `app/services/growth_stage.py`. Committet in `20a01ab` (zusammen mit dem damaligen Lernpfad-Update). `GrowthStageCreate`, `GrowthStageUpdate`, `GrowthStageResponse`; Service mit `create`, `get`, `get_all`, `update`, `delete`.
+- **LE 3.2 Router** (2026-09-29) — `app/api/routers/growth_stages.py`, vom Lernenden selbst nach dem `plants.py`-Muster geschrieben, Review bestanden im ersten Durchgang (alle 5 Endpunkte, `LookupError → HTTPException(404)` korrekt nur bei `get`/`update`/`delete`, nicht bei `create`). In `app/main.py` eingehängt (Import + `include_router`), ebenfalls vom Lernenden. **Noch nicht committet** (siehe Git-Stand unten).
+- **Environment-Setup** (2026-09-29): `uv` war auf diesem Rechner nicht installiert — über `winget install --id=astral-sh.uv -e` nachgeholt. PowerShell-`ExecutionPolicy` für `-Scope CurrentUser` auf `RemoteSigned` gesetzt (war `Restricted`, verhinderte `.venv\Scripts\Activate.ps1`). `uv sync` ausgeführt: hat sich selbst Python 3.14.7 heruntergeladen (vorher kein Python auf dem Rechner) und `.venv` inkl. aller 53 Pakete angelegt. `nsm.db` war leer (keine Tabellen) — `uv run alembic upgrade head` behebt das (alle 5 Migrationen laufen durch).
+- **`docs/alembic.md`** (2026-09-29, neu, **noch nicht committet**): Referenz-Doku für die Alembic-Workflows in diesem Projekt (DB aktualisieren, neue Migration erzeugen, SQLite-Batch-Migrationen, Fehlerbilder). Von mir geschrieben (reine Infrastruktur-Referenz, kein Fachcode), noch nicht in `kistart.md`/`workflow.md` verlinkt — offene Entscheidung, siehe unten.
+- **`tests/conftest.py`** (2026-09-29, geändert, **noch nicht committet**):
+  - Fehlenden `import pytest` und einen angefangenen, unvollständigen Fixture-Stub am Dateiende repariert (Datei war zwischendurch kaputt/unvollständig gespeichert).
+  - `existing_plant_id` und `valid_growth_stage_payload` — von mir geschrieben und erklärt (erstes Beispiel für „Fixture mit Fixture-Parameter"), weil `GrowthStage` zwingend eine echte `plant_id` braucht.
+  - `session`-Fixture (yield-basiert, `SessionLocal()` über `with`) sowie `create_plant` (Factory-Fixture: gibt eine Funktion `PlantCreate → int` zurück) und `plant1` (Beispielnutzung der Factory) — vom Lernenden selbst geschrieben, mit Hinweisen (nicht Vollösung) korrigiert. Typing der Factory: `Callable[[PlantCreate], int]`.
+  - **Bewusst nicht aufgeräumt:** `existing_plant_id` und `plant1` überschneiden sich inhaltlich (beide liefern eine Plant-Id). Blieb offen, keine Entscheidung getroffen.
 
 ## In Arbeit
 
-**LE 3.2 – GrowthStage** (🔶). Model, Beziehung, Schemas und Service sind fertig und reviewed. Router und Tests fehlen. Die API hängt noch nicht in `app/main.py`.
+**LE 3.2 – GrowthStage** (🔶). Model, Beziehung, Schemas, Service und Router sind fertig und reviewed, Router ist in `main.py` eingehängt. Fixtures für die kommenden Tests stehen in `tests/conftest.py`. **Es existiert noch keine einzige GrowthStage-Testdatei.**
 
 ```text
 Plant  1 ──n  GrowthStage
@@ -1289,29 +1291,27 @@ Plant  1 ──n  GrowthStage
 
 ## Erste Handlung der nächsten Session (verbindlich)
 
-`relationship()` nicht noch einmal von vorn erklären, außer der Lernende fragt. Nicht Alembic. Nicht LE 3.3.
+Router und `relationship()` nicht erneut erklären, außer der Lernende fragt. Nicht LE 3.3 anfangen.
 
 1. `docs/kistart.md` lesen, dann **diesen gesamten Abschnitt**.
-2. Kurz zusammenfassen: LE 3.2, Model + Beziehung + Schemas + Service stehen, als Nächstes der Router.
-3. Der Lernende schreibt den Router selbst, nach `app/api/routers/plants.py`. Danach Review. Tests erst nach dem Router-Review.
+2. Kurz zusammenfassen: LE 3.2 ist bis auf die Tests fachlich fertig (Model, Schemas, Service, Router, main.py-Hookup). Als Nächstes: drei Testdateien.
+3. Der Lernende schreibt die Tests selbst. Fixtures (`valid_growth_stage_payload`, `existing_plant_id`, `create_plant`, `plant1`) stehen bereits in `tests/conftest.py` und dürfen direkt benutzt werden.
 
-### Router, den der Lernende schreibt
+### Tests, die der Lernende schreibt
 
-Neue Datei `app/api/routers/growth_stages.py`. In `app/main.py` einhängen wie Plant: `from app.api.routers.growth_stages import router as router_growth_stage` und `include_router(router_growth_stage)`. Das Modul selbst nicht übergeben.
+Analog zum bestehenden Fertilizer/Plant-Muster, drei neue Dateien:
 
-| Methode | Pfad | Status | Schema |
-|---|---|---|---|
-| POST | `/growth-stages` | 201 | Body `GrowthStageCreate`, Response `GrowthStageResponse` |
-| GET | `/growth-stages` | 200 | `list[GrowthStageResponse]` |
-| GET | `/growth-stages/{growth_stage_id}` | 200 | `GrowthStageResponse` |
-| PUT | `/growth-stages/{growth_stage_id}` | 200 | Body `GrowthStageUpdate`, Response `GrowthStageResponse` |
-| DELETE | `/growth-stages/{growth_stage_id}` | 204 | kein Body |
+| Datei | Testfälle |
+|---|---|
+| `tests/unit/test_growth_stage_schema.py` | `GrowthStageCreate` lehnt leeren Namen ab; lehnt `ec_min <= 0` ab (`Field(gt=0.0)`) |
+| `tests/integration/test_growth_stage_service.py` | `get()` wirft `LookupError` bei fehlender Id; `create()` persistiert korrekt (inkl. `plant_id`); `update()` ändert Felder; `delete()` + anschließendes `get()` wirft `LookupError` |
+| `tests/api/test_growth_stages.py` | `POST /growth-stages` → 201, Felder stimmen; `GET /growth-stages/{id}` mit unbekannter Id → 404 |
 
-`GrowthStageService(session)` aufrufen. `LookupError` im Router als `HTTPException(404)` mit `from exc`. `create` fängt `LookupError` nicht (der Service wirft dort keine). Rückgabetypen sind das SQLAlchemy-Model `GrowthStage`, `response_model` macht daraus die Response.
+Für `plant_id` **immer** eine der Fixtures nutzen (`valid_growth_stage_payload` liefert bereits ein komplettes Payload-Dict inkl. echter `plant_id`; `existing_plant_id`/`create_plant`/`plant1` für flexiblere Fälle). Keine erfundene `plant_id` verwenden.
 
 ### Arbeitsweise (verbindlich)
 
-Ab Phase 3 schreibt der Lernende. Agent: Konzept, Review, Debugging. Plant ist das CRUD-Muster. Der GrowthStage-Service ist das zweite Beispiel und gilt als reviewed.
+Ab Phase 3 schreibt der Lernende den Fachcode und die Tests. Agent: Konzept, Review, Debugging, Fixtures/Infrastruktur bei neuen Konzepten als erstes Beispiel. Die Fixtures fürs GrowthStage-Testing sind bereits gebaut (s. o.) — die **Testfunktionen selbst** sind noch offen und Aufgabe des Lernenden.
 
 **Nach jeder Lerneinheit** fragen: abschließen? committen? nächste LE beginnen? LE 3.2 ist noch nicht abgeschlossen.
 
@@ -1319,29 +1319,35 @@ Ab Phase 3 schreibt der Lernende. Agent: Konzept, Review, Debugging. Plant ist d
 
 - **`plant_id` und `relationship()`:** Spalte bleibt. `relationship()` ist nur die Python-Navigation (`stadium.plant`, `pflanze.growth_stages`). Keine neue Alembic-Revision dafür.
 - **Service-Fallen, die beim ersten Review kaputt waren:** `get_all` ist `scalars(select(GrowthStage)).all()`, nicht `session.get`. `update`/`delete` rufen `self.get(growth_stage_id)` auf, nicht `self.get(growth_stage)`. `commit()` mit Klammern. `delete` committet. In `update` kein extra `add`. `__init__(...) -> None`.
-- **Datenbank:** SQLite, `nsm.db`. Engine: `check_same_thread=False`. Alembic: `render_as_batch=True`. Autogenerate braucht Model-Import in `app/models/__init__.py`.
+- **Datenbank:** SQLite, `nsm.db`. Engine: `check_same_thread=False`. Alembic: `render_as_batch=True`. Autogenerate braucht Model-Import in `app/models/__init__.py`. Bei `no such table: ...` (z. B. nach frischem `uv sync` oder auf neuem Rechner): `uv run alembic upgrade head`. Details: `docs/alembic.md`.
+- **`uv` fehlt oder `uv`/`alembic`/`pytest` nicht gefunden:** Terminals, die **vor** einer `uv`-Installation geöffnet wurden, kennen den neuen PATH nicht — neues Terminal öffnen, nicht das alte weiterverwenden. Falls es eilt: `uv.exe` liegt unter `C:\Users\Jonas\AppData\Local\Microsoft\WinGet\Packages\astral-sh.uv_Microsoft.Winget.Source_8wekyb3d8bbwe`. Aktivierte venv reicht auch ohne `uv` (`pytest`, `alembic` liegen dann direkt in `.venv\Scripts`).
+- **`.venv\Scripts\Activate.ps1` verweigert mit PSSecurityException:** `ExecutionPolicy` für `CurrentUser` war `Restricted`. Jetzt auf `RemoteSigned` gesetzt — sollte nicht erneut auftreten, falls doch: `Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned`.
+- **Editor-Puffer vs. Datei auf Platte:** `growth_stages.py` war einmal 0 Byte auf der Platte, obwohl der Editor 60 Zeilen anzeigte (nicht gespeicherter Tab). Symptom war `ImportError: cannot import name 'router'` beim Testlauf. Bei ähnlichen „Name existiert nicht, obwohl Code sichtbar ist"-Fehlern zuerst Dateigröße auf der Platte prüfen, nicht nur den Editor-Inhalt.
 - **`DemoRecord`:** Model-Datei `app/models/demo.py` und Export in `__init__.py` **behalten**. Die Demo-**Routen** bleiben weg. Fehlt das Model, schlägt Autogenerate oft `drop_table('demo_records')` vor — das nicht in andere Migrationen mischen.
 - **`sort_order`:** Pflichtfeld. Nicht `Mapped[int]` zusammen mit `nullable=True`. Kein ungenutztes `Text`-Import in `growth_stage.py`. `from operator import gt` nicht für `Field(gt=0.0)` importieren; `gt` ist der Parametername.
-- **Tests:** Unit ohne DB/HTTP. Integration: `LookupError`, nicht `None`. Persistenz: **zweite** Session (Identity Map). API: `TestClient`, Status 201/404/422. Fixtures: `tests/conftest.py`. `.copy()` vor Mutation. Testdateien **speichern**, sonst sammelt pytest sie nicht. GrowthStage-Tests gibt es noch nicht; erst nach dem Router.
-- `include_router` mit dem **Modul** ist falsch. Plant: `from app.api.routers.plants import router as router_plant`.
+- **Tests:** Unit ohne DB/HTTP. Integration: `LookupError`, nicht `None`. Persistenz: **zweite** Session (Identity Map). API: `TestClient`, Status 201/404/422. Fixtures: `tests/conftest.py`. `.copy()` vor Mutation. Testdateien **speichern**, sonst sammelt pytest sie nicht. GrowthStage-Tests gibt es noch nicht.
+- **Fixture-Konzept „Factory als Fixture":** Fixture-Parameter sind reine Namen, die pytest zum fertigen Wert der anderen Fixture auflöst — man kann in der Parameterliste keine Funktion aufrufen (`def foo(create_plant(...))` ist ein Syntaxfehler). Der eigentliche Aufruf mit konkreten Argumenten gehört in den Funktionskörper (`return create_plant(PlantCreate(...))`).
+- `include_router` mit dem **Modul** ist falsch. Plant: `from app.api.routers.plants import router as router_plant`. Growth Stage: `from app.api.routers.growth_stages import router as router_growth_stage` — genauso jetzt in `main.py`.
 - Update: `model_dump(exclude_unset=True)`, nicht `exclude_none`.
 - `from_attributes=True` nur am Response-Schema (ORM → JSON). Create/Update brauchen das nicht.
 - `LookupError` im Service, `HTTPException(404)` im Router (`from exc`).
-- **Git:** Arbeit auf `main`. Letzter Commit `db07163` (Model, Relationship, Migration, damaliger Lernpfad). `origin/main` ist `[gone]`. Nicht ungefragt pushen. Uncommittet nach dieser Sitzung: `app/schemas/growth_stage.py`, `app/services/growth_stage.py`, `docs/lernpfad.md`. `nsm.db` nicht committen.
+- **Git:** Arbeit auf `main`, `origin/main` ist aktuell gleich (`up to date`). Letzter Commit `20a01ab`. Uncommittet nach dieser Sitzung: `app/main.py` (Router-Hookup), `tests/conftest.py` (neue Fixtures), `app/api/routers/growth_stages.py` (neu), `docs/alembic.md` (neu), `docs/lernpfad.md` (dieser Abschnitt). `nsm.db` nicht committen. Nicht ungefragt committen oder pushen.
+- **Offen, nicht entschieden:** Soll `docs/alembic.md` in `kistart.md` und/oder `workflow.md` verlinkt werden? Soll die Redundanz zwischen `existing_plant_id` und `plant1` in `conftest.py` bereinigt werden? Beides in der nächsten Sitzung aktiv fragen, nicht stillschweigend entscheiden.
 - Parametrize zurückgestellt.
 - SQLite-Inhalt lokal z. B. Extension **SQLite Viewer** (`qwtel.sqlite-viewer`).
+- Cursor Tab (KI-Autocomplete) wurde auf Wunsch des Lernenden deaktiviert (`cursor.tabCompletion: false` in den User-`settings.json`) — persönliche IDE-Einstellung, kein Projektbezug, nicht projektbezogen rückgängig machen ohne Nachfrage.
 - Sitzungsende immer über `docs/kistart.md` Abschnitt „Sitzung beenden“.
 
 ## Nicht als Nächstes
 
-- `relationship()` noch einmal als Einstieg erklären
+- Router oder `relationship()` noch einmal als Einstieg erklären
 - Neue Alembic-Revision (keine neue Spalte)
 - `plant_id` aus dem Model entfernen
-- EC/pH-Reihenfolge (`min <= target <= max`) im selben Schritt wie der Router
-- GrowthStage-Tests, bevor der Router reviewed ist
+- EC/pH-Reihenfolge (`min <= target <= max`) im selben Schritt wie die Tests
 - Recipe / RecipeItem (LE 3.3+)
 - PostgreSQL / Docker Compose / Testcontainers
 - Demo-Records-API wieder anbauen oder `demo_records` droppen
 - Parametrize
+- Fixture-Redundanz (`existing_plant_id` vs. `plant1`) stillschweigend auflösen
 - ungefragt committen, pushen oder LE 3.2 abschließen
 

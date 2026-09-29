@@ -3,6 +3,7 @@ from sqlalchemy import text
 
 from app.api.routers.fertilizers import router as router_fertilizer
 from app.api.routers.plants import router as router_plant
+from app.api.routers.growth_stages import router as router_growth_stage
 from app.core.database import engine
 
 
@@ -12,7 +13,7 @@ app = FastAPI(
 )
 app.include_router(router_fertilizer)
 app.include_router(router_plant)
-
+app.include_router(router_growth_stage)
 
 @app.get("/")
 def read_root() -> dict[str, str]:
