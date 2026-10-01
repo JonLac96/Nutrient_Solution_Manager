@@ -1256,34 +1256,26 @@ Dadurch wird verhindert, dass große Teile des Projekts entstehen, ohne dass die
 
 # 8. Aktueller nächster Schritt
 
-Stand 2026-09-29, Sitzung beendet.
+Stand 2026-09-30, Sitzung beendet.
 
 ## Abgeschlossen
 
 - **LE 1.1–1.7** – Phase 1
 - **LE 2.1–2.5** – Fertilizer durch alle Schichten inkl. Tests. Commits u. a. `cc86dd0`, `bc85ca4`
 - **Datenbank:** SQLite `nsm.db` (gitignored). Commit `8015bff`
-- **LE 3.1 – Plant** – Model `app/models/plant.py`, Revision `6966518b98df`, Schemas, `PlantService`, Router `/plants` (`include_router` mit `router`, nicht dem Modul). Tests: Unit leerer Name, Integration `get` → `LookupError`, API `POST /plants` → 201. Gemeinsame Fixtures in `tests/conftest.py` (nicht unter `tests/unit/`). Dummy-`GET /plants` und Demo-Record-Routen aus `main.py` entfernt. Plant-CRUD-Code: Commit `2cd03a8`. Tests + Fixture-Umzug: Commit `507f7d3`
-- **LE 3.2 Model + Migration + `relationship()`** — Commit `db07163`:
-  - `app/models/growth_stage.py`, Tabelle `growth_stages`, Revision `5b10439fdc69` (`down_revision = 6966518b98df`). `upgrade head` ist gelaufen. Kein `drop_table('demo_records')`
-  - `plant_id: Mapped[int] = mapped_column(ForeignKey("plants.id"))` bleibt. `relationship()` ersetzt die Spalte nicht
-  - Beide Seiten, Review bestanden, keine neue Migration:
-    - `GrowthStage.plant: Mapped["Plant"] = relationship(back_populates="growth_stages")`
-    - `Plant.growth_stages: Mapped[list["GrowthStage"]] = relationship(back_populates="plant")`
-  - `sort_order` Pflichtfeld (`Mapped[int]`, nicht `nullable=True`). EC/pH als `Float`. Export in `app/models/__init__.py` mit `DemoRecord`, `Fertilizer`, `Plant`
-- **LE 3.2 Schemas + Service** — `app/schemas/growth_stage.py`, `app/services/growth_stage.py`. Committet in `20a01ab` (zusammen mit dem damaligen Lernpfad-Update). `GrowthStageCreate`, `GrowthStageUpdate`, `GrowthStageResponse`; Service mit `create`, `get`, `get_all`, `update`, `delete`.
-- **LE 3.2 Router** (2026-09-29) — `app/api/routers/growth_stages.py`, vom Lernenden selbst nach dem `plants.py`-Muster geschrieben, Review bestanden im ersten Durchgang (alle 5 Endpunkte, `LookupError → HTTPException(404)` korrekt nur bei `get`/`update`/`delete`, nicht bei `create`). In `app/main.py` eingehängt (Import + `include_router`), ebenfalls vom Lernenden. **Noch nicht committet** (siehe Git-Stand unten).
-- **Environment-Setup** (2026-09-29): `uv` war auf diesem Rechner nicht installiert — über `winget install --id=astral-sh.uv -e` nachgeholt. PowerShell-`ExecutionPolicy` für `-Scope CurrentUser` auf `RemoteSigned` gesetzt (war `Restricted`, verhinderte `.venv\Scripts\Activate.ps1`). `uv sync` ausgeführt: hat sich selbst Python 3.14.7 heruntergeladen (vorher kein Python auf dem Rechner) und `.venv` inkl. aller 53 Pakete angelegt. `nsm.db` war leer (keine Tabellen) — `uv run alembic upgrade head` behebt das (alle 5 Migrationen laufen durch).
-- **`docs/alembic.md`** (2026-09-29, neu, **noch nicht committet**): Referenz-Doku für die Alembic-Workflows in diesem Projekt (DB aktualisieren, neue Migration erzeugen, SQLite-Batch-Migrationen, Fehlerbilder). Von mir geschrieben (reine Infrastruktur-Referenz, kein Fachcode), noch nicht in `kistart.md`/`workflow.md` verlinkt — offene Entscheidung, siehe unten.
-- **`tests/conftest.py`** (2026-09-29, geändert, **noch nicht committet**):
-  - Fehlenden `import pytest` und einen angefangenen, unvollständigen Fixture-Stub am Dateiende repariert (Datei war zwischendurch kaputt/unvollständig gespeichert).
-  - `existing_plant_id` und `valid_growth_stage_payload` — von mir geschrieben und erklärt (erstes Beispiel für „Fixture mit Fixture-Parameter"), weil `GrowthStage` zwingend eine echte `plant_id` braucht.
-  - `session`-Fixture (yield-basiert, `SessionLocal()` über `with`) sowie `create_plant` (Factory-Fixture: gibt eine Funktion `PlantCreate → int` zurück) und `plant1` (Beispielnutzung der Factory) — vom Lernenden selbst geschrieben, mit Hinweisen (nicht Vollösung) korrigiert. Typing der Factory: `Callable[[PlantCreate], int]`.
-  - **Bewusst nicht aufgeräumt:** `existing_plant_id` und `plant1` überschneiden sich inhaltlich (beide liefern eine Plant-Id). Blieb offen, keine Entscheidung getroffen.
+- **LE 3.1 – Plant** – Model `app/models/plant.py`, Revision `6966518b98df`, Schemas, `PlantService`, Router `/plants`. Tests: Unit leerer Name, Integration `get` → `LookupError`, API `POST /plants` → 201. Plant-CRUD-Code: Commit `2cd03a8`. Tests + Fixture-Umzug: Commit `507f7d3`
+- **LE 3.2 Model + Migration + `relationship()`** — Commit `db07163`. Tabelle `growth_stages`, Revision `5b10439fdc69` (`down_revision = 6966518b98df`). `plant_id` bleibt, `relationship()` auf beiden Seiten. `sort_order` Pflichtfeld. EC/pH als `Float`
+- **LE 3.2 Schemas + Service** — Commit `20a01ab`. `GrowthStageCreate`, `GrowthStageUpdate`, `GrowthStageResponse`; Service mit `create`, `get`, `get_all`, `update`, `delete`
+- **LE 3.2 Router** — `app/api/routers/growth_stages.py`, in `app/main.py` eingehängt. Zusammen mit `docs/alembic.md` und dem damaligen Lernpfad-Stand committet in `741b41f` (auf `origin/main`)
+- **LE 3.2 Unit-Tests** (2026-09-30, **noch nicht committet**) — `tests/unit/test_growth_stage_schema.py`, beide grün:
+  - `test_growth_stage_create_rejects_empty_name` (nach Review vom Agenten auf das Plant-Muster umgebaut: Dict kopieren, `GrowthStageCreate.model_validate`)
+  - `test_growth_stage_create_rejects_negative_ec_min` (vom Lernenden, Review bestanden, `ec_min = -1.3`). Kommentar in dem Test beschreibt noch fälschlich den Namen; der Code prüft `ec_min`. Grenze `0.0` ist extra, nicht Pflicht
+- **LE 3.2 Integration, ein Fall** (2026-09-30, **noch nicht committet**) — `tests/integration/test_growth_stage_service.py`: `get(999999)` wirft `LookupError`. Datei hieß kurz `test_grow_stage_service.py` und lag inhaltlich vertauscht in `test_plant_service.py`; das ist behoben. `test_plant_service.py` prüft wieder `PlantService`
+- **Session-Fixtures** (2026-09-30, **noch nicht committet**): Die Fixture `session` ist entfernt. Alle Integrationstests (Plant, Fertilizer, GrowthStage) und `create_plant` nutzen nur noch `open_session` in `tests/conftest.py`. Am Ende der Sitzung: `uv run pytest tests/integration` → 6 passed, Schema-Unit-Tests → 2 passed
 
 ## In Arbeit
 
-**LE 3.2 – GrowthStage** (🔶). Model, Beziehung, Schemas, Service und Router sind fertig und reviewed, Router ist in `main.py` eingehängt. Fixtures für die kommenden Tests stehen in `tests/conftest.py`. **Es existiert noch keine einzige GrowthStage-Testdatei.**
+**LE 3.2 – GrowthStage** (🔶). Model, Beziehung, Schemas, Service und Router sind fertig. Unit-Schema-Tests sind da. Vom Integrationstest fehlt alles außer `get` → `LookupError`. API-Tests fehlen.
 
 ```text
 Plant  1 ──n  GrowthStage
@@ -1291,63 +1283,72 @@ Plant  1 ──n  GrowthStage
 
 ## Erste Handlung der nächsten Session (verbindlich)
 
-Router und `relationship()` nicht erneut erklären, außer der Lernende fragt. Nicht LE 3.3 anfangen.
+Router und `relationship()` nicht erneut erklären, außer der Lernende fragt. Nicht LE 3.3 anfangen. Nicht mit dem nächsten Test beginnen, bevor `open_session` erklärt ist.
 
 1. `docs/kistart.md` lesen, dann **diesen gesamten Abschnitt**.
-2. Kurz zusammenfassen: LE 3.2 ist bis auf die Tests fachlich fertig (Model, Schemas, Service, Router, main.py-Hookup). Als Nächstes: drei Testdateien.
-3. Der Lernende schreibt die Tests selbst. Fixtures (`valid_growth_stage_payload`, `existing_plant_id`, `create_plant`, `plant1`) stehen bereits in `tests/conftest.py` und dürfen direkt benutzt werden.
+2. Kurz zusammenfassen, wo LE 3.2 steht (siehe „In Arbeit“).
+3. **`open_session` genau erklären.** Das hat der Lernende am 2026-09-30 ausdrücklich für diese Sitzung aufgehoben. Erklärung vor neuem Testcode, an `tests/conftest.py` und einem bestehenden Fertilizer-Test (`create` / `update` / `delete` ruft `open_session()` mehrfach auf). Dabei müssen diese Punkte vorkommen:
+   - Was die Fixture zurückgibt: einen Context Manager, nicht eine `Session`
+   - Warum der Aufruf `with open_session() as session` heißt und was `yield` im inneren Context Manager tut
+   - Warum jeder Aufruf eine **neue** Session ist und der `with`-Block sie schließt
+   - Warum Persistenzprüfungen einen zweiten Aufruf brauchen (Identity Map der ersten Session)
+   - Warum `create_plant` die `plant.id` **innerhalb** des `with` liest: danach ist das ORM-Objekt nicht mehr benutzbar, die `int`-Id schon, weil `PlantService.create` committet
+   - Die Fixture `session` gibt es nicht mehr. Nicht wieder einführen, außer der Lernende will das bewusst
+4. Danach den nächsten Test vom Lernenden schreiben lassen.
 
-### Tests, die der Lernende schreibt
+### Tests, die noch offen sind
 
-Analog zum bestehenden Fertilizer/Plant-Muster, drei neue Dateien:
-
-| Datei | Testfälle |
+| Datei | Stand |
 |---|---|
-| `tests/unit/test_growth_stage_schema.py` | `GrowthStageCreate` lehnt leeren Namen ab; lehnt `ec_min <= 0` ab (`Field(gt=0.0)`) |
-| `tests/integration/test_growth_stage_service.py` | `get()` wirft `LookupError` bei fehlender Id; `create()` persistiert korrekt (inkl. `plant_id`); `update()` ändert Felder; `delete()` + anschließendes `get()` wirft `LookupError` |
-| `tests/api/test_growth_stages.py` | `POST /growth-stages` → 201, Felder stimmen; `GET /growth-stages/{id}` mit unbekannter Id → 404 |
+| `tests/unit/test_growth_stage_schema.py` | fertig (leerer Name, negatives `ec_min`) |
+| `tests/integration/test_growth_stage_service.py` | nur `get` → `LookupError`. Offen: `create()` persistiert inkl. `plant_id`; `update()` ändert Felder; `delete()` und danach `get()` wirft `LookupError` |
+| `tests/api/test_growth_stages.py` | fehlt. `POST /growth-stages` → 201; `GET /growth-stages/{id}` mit unbekannter Id → 404 |
 
-Für `plant_id` **immer** eine der Fixtures nutzen (`valid_growth_stage_payload` liefert bereits ein komplettes Payload-Dict inkl. echter `plant_id`; `existing_plant_id`/`create_plant`/`plant1` für flexiblere Fälle). Keine erfundene `plant_id` verwenden.
+Nächster Test nach der Erklärung: `create()` in `tests/integration/test_growth_stage_service.py`. Echte `plant_id` über `create_plant`, nicht die fest eingetragene `plant_id: 1` aus `valid_growth_stage_payload` (die reicht nur für Schema-Unit-Tests ohne Datenbank). Zurücklesen in einem zweiten `open_session()`-Aufruf.
 
 ### Arbeitsweise (verbindlich)
 
-Ab Phase 3 schreibt der Lernende den Fachcode und die Tests. Agent: Konzept, Review, Debugging, Fixtures/Infrastruktur bei neuen Konzepten als erstes Beispiel. Die Fixtures fürs GrowthStage-Testing sind bereits gebaut (s. o.) — die **Testfunktionen selbst** sind noch offen und Aufgabe des Lernenden.
+Ab Phase 3 schreibt der Lernende den Fachcode und die Tests. Agent: Konzept, Review, Debugging, Fixtures bei neuen Konzepten als erstes Beispiel. `open_session` ist so ein Konzept und wird zu Beginn der nächsten Sitzung erklärt. Die übrigen Testfunktionen schreibt der Lernende.
 
 **Nach jeder Lerneinheit** fragen: abschließen? committen? nächste LE beginnen? LE 3.2 ist noch nicht abgeschlossen.
 
 ## Hinweise aus den Sitzungen
 
+- **`open_session`:** einzige Session-Fixture. Signatur `Callable[[], AbstractContextManager[Session]]`. Tests und `create_plant` rufen sie mit `with open_session() as session` auf. Mehrfach aufrufen, wenn eine frische Session nötig ist. Die alte Fixture `session` ist gelöscht.
+- **`plant_id` in Tests:** Schema-Unit-Tests dürfen `valid_growth_stage_payload` mit `"plant_id": 1` kopieren; das Schema prüft keine Fremdschlüssel. Integration und API brauchen eine echte Id von `create_plant`. `plant_create_1` in `conftest.py` hat **kein** `@pytest.fixture` und ist keine Fixture. `grow_stage_create_1` baut ein `GrowthStageCreate` mit festem `plant_id=1` und wird von den aktuellen Tests nicht benutzt. `existing_plant_id` und `plant1` aus älteren Notizen existieren nicht mehr.
+- **`model_validate`:** Klassenmethode, Dict rein, Modell oder `ValidationError`. Keys müssen die Feldnamen exakt treffen. Pflichtfelder müssen da sein. Unbekannte Keys werden ignoriert, solange `extra="forbid"` nicht gesetzt ist. Ungültige Werte ins **kopierte Dict** legen, nicht nachträglich ein Attribut auf einer schon gebauten Instanz setzen. Assert immer auf dem Schema, das geprüft werden soll (`GrowthStageCreate`, nicht `PlantCreate`).
 - **`plant_id` und `relationship()`:** Spalte bleibt. `relationship()` ist nur die Python-Navigation (`stadium.plant`, `pflanze.growth_stages`). Keine neue Alembic-Revision dafür.
 - **Service-Fallen, die beim ersten Review kaputt waren:** `get_all` ist `scalars(select(GrowthStage)).all()`, nicht `session.get`. `update`/`delete` rufen `self.get(growth_stage_id)` auf, nicht `self.get(growth_stage)`. `commit()` mit Klammern. `delete` committet. In `update` kein extra `add`. `__init__(...) -> None`.
-- **Datenbank:** SQLite, `nsm.db`. Engine: `check_same_thread=False`. Alembic: `render_as_batch=True`. Autogenerate braucht Model-Import in `app/models/__init__.py`. Bei `no such table: ...` (z. B. nach frischem `uv sync` oder auf neuem Rechner): `uv run alembic upgrade head`. Details: `docs/alembic.md`.
-- **`uv` fehlt oder `uv`/`alembic`/`pytest` nicht gefunden:** Terminals, die **vor** einer `uv`-Installation geöffnet wurden, kennen den neuen PATH nicht — neues Terminal öffnen, nicht das alte weiterverwenden. Falls es eilt: `uv.exe` liegt unter `C:\Users\Jonas\AppData\Local\Microsoft\WinGet\Packages\astral-sh.uv_Microsoft.Winget.Source_8wekyb3d8bbwe`. Aktivierte venv reicht auch ohne `uv` (`pytest`, `alembic` liegen dann direkt in `.venv\Scripts`).
-- **`.venv\Scripts\Activate.ps1` verweigert mit PSSecurityException:** `ExecutionPolicy` für `CurrentUser` war `Restricted`. Jetzt auf `RemoteSigned` gesetzt — sollte nicht erneut auftreten, falls doch: `Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned`.
-- **Editor-Puffer vs. Datei auf Platte:** `growth_stages.py` war einmal 0 Byte auf der Platte, obwohl der Editor 60 Zeilen anzeigte (nicht gespeicherter Tab). Symptom war `ImportError: cannot import name 'router'` beim Testlauf. Bei ähnlichen „Name existiert nicht, obwohl Code sichtbar ist"-Fehlern zuerst Dateigröße auf der Platte prüfen, nicht nur den Editor-Inhalt.
-- **`DemoRecord`:** Model-Datei `app/models/demo.py` und Export in `__init__.py` **behalten**. Die Demo-**Routen** bleiben weg. Fehlt das Model, schlägt Autogenerate oft `drop_table('demo_records')` vor — das nicht in andere Migrationen mischen.
-- **`sort_order`:** Pflichtfeld. Nicht `Mapped[int]` zusammen mit `nullable=True`. Kein ungenutztes `Text`-Import in `growth_stage.py`. `from operator import gt` nicht für `Field(gt=0.0)` importieren; `gt` ist der Parametername.
-- **Tests:** Unit ohne DB/HTTP. Integration: `LookupError`, nicht `None`. Persistenz: **zweite** Session (Identity Map). API: `TestClient`, Status 201/404/422. Fixtures: `tests/conftest.py`. `.copy()` vor Mutation. Testdateien **speichern**, sonst sammelt pytest sie nicht. GrowthStage-Tests gibt es noch nicht.
-- **Fixture-Konzept „Factory als Fixture":** Fixture-Parameter sind reine Namen, die pytest zum fertigen Wert der anderen Fixture auflöst — man kann in der Parameterliste keine Funktion aufrufen (`def foo(create_plant(...))` ist ein Syntaxfehler). Der eigentliche Aufruf mit konkreten Argumenten gehört in den Funktionskörper (`return create_plant(PlantCreate(...))`).
-- `include_router` mit dem **Modul** ist falsch. Plant: `from app.api.routers.plants import router as router_plant`. Growth Stage: `from app.api.routers.growth_stages import router as router_growth_stage` — genauso jetzt in `main.py`.
-- Update: `model_dump(exclude_unset=True)`, nicht `exclude_none`.
-- `from_attributes=True` nur am Response-Schema (ORM → JSON). Create/Update brauchen das nicht.
-- `LookupError` im Service, `HTTPException(404)` im Router (`from exc`).
-- **Git:** Arbeit auf `main`, `origin/main` ist aktuell gleich (`up to date`). Letzter Commit `20a01ab`. Uncommittet nach dieser Sitzung: `app/main.py` (Router-Hookup), `tests/conftest.py` (neue Fixtures), `app/api/routers/growth_stages.py` (neu), `docs/alembic.md` (neu), `docs/lernpfad.md` (dieser Abschnitt). `nsm.db` nicht committen. Nicht ungefragt committen oder pushen.
-- **Offen, nicht entschieden:** Soll `docs/alembic.md` in `kistart.md` und/oder `workflow.md` verlinkt werden? Soll die Redundanz zwischen `existing_plant_id` und `plant1` in `conftest.py` bereinigt werden? Beides in der nächsten Sitzung aktiv fragen, nicht stillschweigend entscheiden.
+- **Datenbank:** SQLite, `nsm.db`. Engine: `check_same_thread=False`. Alembic: `render_as_batch=True`. Autogenerate braucht Model-Import in `app/models/__init__.py`. Bei `no such table: ...`: `uv run alembic upgrade head`. Details: `docs/alembic.md`.
+- **`uv` fehlt oder Befehle nicht gefunden:** Terminals, die vor der `uv`-Installation geöffnet wurden, kennen den PATH nicht. Neues Terminal öffnen. `uv.exe` liegt unter `C:\Users\Jonas\AppData\Local\Microsoft\WinGet\Packages\astral-sh.uv_Microsoft.Winget.Source_8wekyb3d8bbwe`.
+- **`.venv\Scripts\Activate.ps1` und ExecutionPolicy:** `CurrentUser` steht auf `RemoteSigned`. Falls doch `PSSecurityException`: `Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned`.
+- **Editor-Puffer vs. Datei auf Platte:** Ungespeicherte Tabs sind auf der Platte leer oder alt. Symptom war `ImportError: cannot import name 'router'`. Zuerst die Datei auf der Platte prüfen.
+- **`DemoRecord`:** Model `app/models/demo.py` und Export in `__init__.py` behalten. Demo-Routen bleiben weg. Autogenerate schlägt sonst oft `drop_table('demo_records')` vor.
+- **`sort_order`:** Pflichtfeld. `from operator import gt` nicht für `Field(gt=0.0)` importieren.
+- **Tests:** Unit ohne DB/HTTP. Integration: `LookupError`, nicht `None`. Persistenz über einen zweiten `open_session()`-Aufruf. API: `TestClient`, Status 201/404/422. `.copy()` vor Mutation. Testdateien speichern, sonst sammelt pytest sie nicht.
+- **Factory-Fixture:** Parametername wird von pytest aufgelöst. `def foo(create_plant(...))` ist ein Syntaxfehler. Der Aufruf steht im Funktionskörper.
+- `include_router` bekommt den Router, nicht das Modul. Growth Stage: `from app.api.routers.growth_stages import router as router_growth_stage`.
+- Update: `model_dump(exclude_unset=True)`. `from_attributes=True` nur am Response-Schema. `LookupError` im Service, `HTTPException(404)` im Router.
+- **Git:** `main`, gleichauf mit `origin/main`. Letzter Commit `741b41f` (Router, `docs/alembic.md`, damaliger Lernpfad, Fixtures). Uncommittet nach dieser Sitzung: `tests/conftest.py`, `tests/integration/test_plant_service.py`, `tests/integration/test_fertilizer_service.py`, `tests/integration/test_growth_stage_service.py` (neu), `tests/unit/test_growth_stage_schema.py` (neu), `docs/lernpfad.md` (dieser Abschnitt). `nsm.db` nicht committen. Nicht ungefragt committen oder pushen.
+- **Offen, nicht entschieden:** Soll `docs/alembic.md` in `kistart.md` und/oder `workflow.md` verlinkt werden? In der nächsten Sitzung nach der `open_session`-Erklärung fragen, nicht stillschweigend verlinken. Die alte Frage „`existing_plant_id` vs. `plant1`“ ist gegenstandslos; diese Fixtures gibt es nicht mehr.
 - Parametrize zurückgestellt.
 - SQLite-Inhalt lokal z. B. Extension **SQLite Viewer** (`qwtel.sqlite-viewer`).
-- Cursor Tab (KI-Autocomplete) wurde auf Wunsch des Lernenden deaktiviert (`cursor.tabCompletion: false` in den User-`settings.json`) — persönliche IDE-Einstellung, kein Projektbezug, nicht projektbezogen rückgängig machen ohne Nachfrage.
+- Cursor Tab bleibt aus (`cursor.tabCompletion: false` in den User-`settings.json`). Nicht ohne Nachfrage wieder einschalten.
 - Sitzungsende immer über `docs/kistart.md` Abschnitt „Sitzung beenden“.
 
 ## Nicht als Nächstes
 
+- Mit einem neuen Test anfangen, bevor `open_session` erklärt ist
+- Die Fixture `session` wieder anlegen
 - Router oder `relationship()` noch einmal als Einstieg erklären
-- Neue Alembic-Revision (keine neue Spalte)
+- Neue Alembic-Revision
 - `plant_id` aus dem Model entfernen
-- EC/pH-Reihenfolge (`min <= target <= max`) im selben Schritt wie die Tests
+- EC/pH-Reihenfolge (`min <= target <= max`) zusammen mit den restlichen Tests
+- `ec_min = 0.0` als Pflicht-Test nachziehen
 - Recipe / RecipeItem (LE 3.3+)
 - PostgreSQL / Docker Compose / Testcontainers
-- Demo-Records-API wieder anbauen oder `demo_records` droppen
+- Demo-Records-API oder `drop_table('demo_records')`
 - Parametrize
-- Fixture-Redundanz (`existing_plant_id` vs. `plant1`) stillschweigend auflösen
+- `plant_create_1` oder `grow_stage_create_1` stillschweigend löschen
 - ungefragt committen, pushen oder LE 3.2 abschließen
 
