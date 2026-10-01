@@ -50,8 +50,8 @@ def test_update_growth_stage(
 ) -> None:
 
     with open_session() as session:
-        plant_id_1 = create_plant(session, PlantCreate(name="plant1", description="descr1"))
-        growth_stage_create = grow_stage_create_1.model_copy(update={"plant_id": plant_id_1})
+        plant_id = create_plant(session, PlantCreate(name="plant1", description="descr1"))
+        growth_stage_create = grow_stage_create_1.model_copy(update={"plant_id": plant_id})
         service = GrowthStageService(session)
         growth_stage = service.create(growth_stage_create)
 
@@ -66,7 +66,33 @@ def test_update_growth_stage(
         service = GrowthStageService(session)
         growth_stage = service.get(growth_stage_id)
 
+        assert growth_stage.plant_id == plant_id
         assert growth_stage.name == "Bluete"
+
+def test_delete_growth_stage(
+    open_session: Callable[[], AbstractContextManager[Session]],
+    create_plant: Callable[[Session, PlantCreate], int],
+    grow_stage_create_1: GrowthStageCreate,
+) -> None:
+
+    with open_session() as session:
+        plant_id = create_plant(session, PlantCreate(name="plant1", description="descr1"))
+        growth_stage_create = grow_stage_create_1.model_copy(update={"plant_id": plant_id})
+        service = GrowthStageService(session)
+        growth_stage = service.create(growth_stage_create)
+
+        assert growth_stage.id is not None
+        growth_stage_id = growth_stage.id
+
+    with open_session() as session:
+        service = GrowthStageService(session)
+        service.delete(growth_stage_id)
+
+    with open_session() as session:
+        service = GrowthStageService(session)
+
+        with pytest.raises(LookupError):
+            growth_stage = service.get(growth_stage_id)
 
       
 
