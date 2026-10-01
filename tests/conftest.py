@@ -51,6 +51,7 @@ def valid_growth_stage_payload() -> dict[str, str | int | float]:
         "ph_max": 6.2,
     }
 
+@pytest.fixture
 def plant_create_1() -> PlantCreate:
     return PlantCreate(
         name="plant1",
@@ -58,14 +59,11 @@ def plant_create_1() -> PlantCreate:
     )
 
 @pytest.fixture
-def create_plant(
-    open_session: Callable[[], AbstractContextManager[Session]],
-) -> Callable[[PlantCreate], int]:
-    def _make(plant_create: PlantCreate) -> int:
-        with open_session() as session:
-            service = PlantService(session)
-            plant = service.create(plant_create)
-            return plant.id
+def create_plant() -> Callable[[Session, PlantCreate], int]:
+    def _make(session: Session, plant_create: PlantCreate) -> int:
+        service = PlantService(session)
+        plant = service.create(plant_create)
+        return plant.id
     return _make
 
 
