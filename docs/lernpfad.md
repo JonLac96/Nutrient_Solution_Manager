@@ -696,7 +696,7 @@ Du.
 
 ### Status
 
-🔶 in Arbeit
+✅ abgeschlossen
 
 ---
 
@@ -1256,7 +1256,7 @@ Dadurch wird verhindert, dass große Teile des Projekts entstehen, ohne dass die
 
 # 8. Aktueller nächster Schritt
 
-Stand 2026-10-01. LE 3.2 abgeschlossen, LE 3.3 begonnen, noch kein Recipe-Code.
+Stand 2026-10-02. LE 3.3 abgeschlossen. LE 3.4 nicht begonnen. Der Lernende hat das ausdrücklich abgelehnt.
 
 ## Abgeschlossen
 
@@ -1264,40 +1264,26 @@ Stand 2026-10-01. LE 3.2 abgeschlossen, LE 3.3 begonnen, noch kein Recipe-Code.
 - **LE 2.1–2.5** – Fertilizer durch alle Schichten inkl. Tests. Commits u. a. `cc86dd0`, `bc85ca4`
 - **Datenbank:** SQLite `nsm.db` (gitignored). Commit `8015bff`
 - **LE 3.1 – Plant** – Model `app/models/plant.py`, Revision `6966518b98df`, Schemas, `PlantService`, Router `/plants`. Tests: Unit leerer Name, Integration `get` → `LookupError`, API `POST /plants` → 201. Plant-CRUD-Code: Commit `2cd03a8`. Tests + Fixture-Umzug: Commit `507f7d3`
-- **LE 3.2** – ✅. Model, `relationship()`, Revision `5b10439fdc69`, Schemas, Service, Router `/growth-stages`. Tests: Schema-Unit (leerer Name, negatives `ec_min`); Integration `get` → `LookupError`, `create`, `update` (Name und `plant_id` unverändert), `delete` dann `get` → `LookupError`; API `POST /growth-stages` → 201 und `GET` unbekannte Id → 404. Relevante Commits: `db07163`, `20a01ab`, `741b41f`, `8e94b93`, `8f5b254`, plus der Commit dieser Sitzung (Integration-Assert `plant_id`, `test_delete_growth_stage`, `tests/api/test_growth_stages.py`)
+- **LE 3.2** – ✅. Model, `relationship()`, Revision `5b10439fdc69`, Schemas, Service, Router `/growth-stages`. Tests: Schema-Unit (leerer Name, negatives `ec_min`); Integration `get` → `LookupError`, `create`, `update` (Name und `plant_id` unverändert), `delete` dann `get` → `LookupError`; API `POST /growth-stages` → 201 und `GET` unbekannte Id → 404. Relevante Commits: `db07163`, `20a01ab`, `741b41f`, `8e94b93`, `8f5b254`, `289694e`
+- **LE 3.3 – Recipe** – ✅. 1:0..1. Model `app/models/recipe.py`, `growth_stage_id` mit `unique=True`, Gegenseite `GrowthStage.recipe`. Revision `c2cdc11b6e4c`. Schemas, `RecipeService`, Router `/recipes`. Tests: Schema-Unit leerer Name; Integration `get` → `LookupError`, `create`, `update` (Name geändert, `growth_stage_id` unverändert), `delete` dann `get` → `LookupError`, zweite Rezeptur derselben Phase → `IntegrityError`; API `POST /recipes` → 201 und `GET` unbekannte Id → 404. Der Lernende hat Model und Migration geschrieben. Den Rest (Schemas, Service, Router, Tests, Lernpfad) hat der Agent auf ausdrücklichen Wunsch umgesetzt. `pytest`: 32 bestanden.
 
 ## In Arbeit
 
-**LE 3.3 – Recipe** (🔶). Noch kein Model. Lernziel: Beziehung GrowthStage zu Recipe.
-
-```text
-GrowthStage  1 ── 0..1  Recipe
-```
-
-Fachlich (`projektkonzept.md`): eine Wachstumsphase hat höchstens eine Rezeptur. Eine Phase ohne Rezeptur ist erlaubt. Recipe-Felder: `id`, `growth_stage_id`, `name`. Die Bestandteile (`RecipeItem`, Summe 100 %) sind LE 3.4.
+Nichts. LE 3.4 ist offen und wird nicht begonnen, bis der Lernende es verlangt.
 
 ## Erste Handlung der nächsten Session (verbindlich)
 
-`open_session`, Router und die 1:n-Beziehung Plant–GrowthStage nicht erneut erklären, außer der Lernende fragt. Nicht LE 3.4 anfangen. Keine Migration, keine Schemas, kein Service, bevor das Model reviewed ist.
+Nicht LE 3.4 anfangen. `open_session`, Router und die Beziehungen Plant–GrowthStage sowie GrowthStage–Recipe nicht erneut erklären, außer der Lernende fragt.
 
 1. `docs/kistart.md` lesen, dann **diesen gesamten Abschnitt**.
-2. Kurz zusammenfassen: LE 3.2 ist abgeschlossen. LE 3.3 modelliert 1:0..1.
-3. Der Lernende schreibt das Recipe-Model. Danach Review. Erst dann Alembic.
-
-### Recipe-Model (der Lernende schreibt)
-
-Neue Datei `app/models/recipe.py`, Export in `app/models/__init__.py`, Gegenseite an `GrowthStage`.
-
-- `growth_stage_id`: `ForeignKey("growth_stages.id")` mit `unique=True`. Ohne `unique` wäre es wieder 1:n.
-- `name`: `String`, wie die anderen Namen begrenzt (100).
-- Auf `Recipe`: `growth_stage: Mapped["GrowthStage"] = relationship(back_populates="recipe")`.
-- Auf `GrowthStage`: `recipe: Mapped["Recipe | None"] = relationship(back_populates="growth_stage", uselist=False)`. `None`, weil die Phase keine Rezeptur haben darf. `uselist=False`, weil es ein Objekt ist und keine Liste.
+2. Kurz zusammenfassen: LE 3.3 ist abgeschlossen. LE 3.4 wurde abgelehnt.
+3. Warten.
 
 ### Arbeitsweise (verbindlich)
 
-Ab Phase 3 schreibt der Lernende den Fachcode und die Tests. Agent: Konzept, Review, Debugging. Die API-Tests in `tests/api/test_growth_stages.py` hat der Agent auf Wunsch geschrieben (Pflanze per `POST /plants`, Payload-Kopie, dann `POST /growth-stages`).
+Ab Phase 3 schreibt der Lernende den Fachcode und die Tests. Agent: Konzept, Review, Debugging. Ausnahme dieser Sitzung: der Lernende hat gesagt „setze du alles was zur LE 3.3 gehört um“. Die API-Tests in `tests/api/test_growth_stages.py` hat der Agent früher auf Wunsch geschrieben.
 
-**Nach jeder Lerneinheit** fragen: abschließen? committen? nächste LE beginnen? LE 3.3 ist noch nicht abgeschlossen.
+**Nach jeder Lerneinheit** fragen: abschließen? committen? nächste LE beginnen?
 
 ## Hinweise aus den Sitzungen
 
@@ -1305,7 +1291,11 @@ Ab Phase 3 schreibt der Lernende den Fachcode und die Tests. Agent: Konzept, Rev
 - **`create_plant` (bewusst so, 2026-10-01):** Signatur `Callable[[Session, PlantCreate], int]`. Der Test übergibt seine offene Session. Die Fixture öffnet keine eigene. `PlantService.create` committet **diese** Session; andere noch offene Änderungen in derselben Session werden mitgeschrieben. Die `int`-Id wird innerhalb von `_make` gelesen, solange die Session des Aufrufers offen ist. Aufruf nur innerhalb von `with open_session() as session`.
 - **`plant_create_1`:** ist seit 2026-10-01 eine Fixture (`@pytest.fixture`) und liefert ein `PlantCreate`. `grow_stage_create_1` ist eine Fixture mit festem `plant_id=1`. Das Schema prüft keinen Fremdschlüssel. Integration und API überschreiben die Id mit `model_copy(update={"plant_id": plant_id})` und einer echten Id von `create_plant`. Die Fixture selbst nicht per `grow_stage_create_1.plant_id = ...` verändern. `valid_growth_stage_payload` mit `"plant_id": 1` nur für Schema-Unit-Tests. `existing_plant_id` und `plant1` gibt es nicht.
 - **`model_copy`:** Pydantic-Methode. Gibt ein neues Modell zurück und ersetzt nur die Felder in `update`. Das Fixture-Objekt bleibt unverändert.
-- **`GrowthStageUpdate`:** kein `plant_id`. Ein Feld ohne Default ist bei Pydantic Pflicht; `plant_id: int | None` ohne `= None` würde jedes Update zu einem Pflicht-`plant_id` machen. Das wurde in dieser Sitzung ausprobiert und wieder entfernt. Ob ein Stadium die Pflanze wechseln darf, ist nicht entschieden. Der Update-Test ändert `name`.
+- **`GrowthStageUpdate`:** kein `plant_id`. Ein Feld ohne Default ist bei Pydantic Pflicht; `plant_id: int | None` ohne `= None` würde jedes Update zu einem Pflicht-`plant_id` machen. Das wurde ausprobiert und wieder entfernt. Ob ein Stadium die Pflanze wechseln darf, ist nicht entschieden. Der Update-Test ändert `name`.
+- **`RecipeUpdate`:** kein `growth_stage_id`, aus demselben Grund. Ob eine Rezeptur die Phase wechseln darf, ist nicht entschieden. Der Update-Test ändert `name` und prüft, dass `growth_stage_id` gleich bleibt.
+- **1:0..1:** `unique=True` an `growth_stage_id` ist die Datenbankregel. `Mapped["Recipe | None"]` sagt SQLAlchemy 2, dass es ein einzelnes Objekt ist (`uselist=False` ist damit implizit). Eine zweite Rezeptur derselben Phase wirft `sqlalchemy.exc.IntegrityError`. Der Router übersetzt das nicht in einen eigenen Statuscode. Dasselbe gilt für einen ungültigen Fremdschlüssel.
+- **`create_growth_stage`:** Signatur `Callable[[Session, GrowthStageCreate], int]`, analog zu `create_plant`. Der Test übergibt seine offene Session. `GrowthStageCreate` kommt in `conftest.py` weiter aus `app.services.growth_stage`. `RecipeCreate` kommt aus `app.schemas.recipe`.
+- **Editor-Puffer vs. Datei auf Platte (2026-10-02, zweimal passiert):** Ungespeicherte Tabs können neuer sein als die Datei. Alembic und pytest lesen die Platte. Beim ersten Autogenerate fehlte `unique=True` auf der Platte, die Revision `0753f5d6529a` wurde verworfen. `GrowthStage.recipe` stand im Editor, pytest sah es nicht (`no property 'recipe'`), bis die Datei geschrieben war. Vor Autogenerate und vor Tests speichern.
 - **`model_validate`:** Klassenmethode, Dict rein, Modell oder `ValidationError`. Keys müssen die Feldnamen exakt treffen. Ungültige Werte ins kopierte Dict legen. Assert auf dem Schema, das geprüft werden soll.
 - **`plant_id` und `relationship()`:** Spalte bleibt. `relationship()` ist nur die Python-Navigation. Keine neue Alembic-Revision dafür.
 - **Service-Fallen:** `get_all` ist `scalars(select(GrowthStage)).all()`. `update`/`delete` rufen `self.get(growth_stage_id)` auf. `commit()` mit Klammern. `delete` committet. In `update` kein extra `add`. `__init__(...) -> None`.
@@ -1313,14 +1303,13 @@ Ab Phase 3 schreibt der Lernende den Fachcode und die Tests. Agent: Konzept, Rev
 - **Datenbank:** SQLite, `nsm.db`. Engine: `check_same_thread=False`. Alembic: `render_as_batch=True`. Autogenerate braucht Model-Import in `app/models/__init__.py`. Bei `no such table: ...`: `uv run alembic upgrade head`. Details: `docs/alembic.md`.
 - **`uv` fehlt oder Befehle nicht gefunden:** Neues Terminal öffnen. `uv.exe` liegt unter `C:\Users\Jonas\AppData\Local\Microsoft\WinGet\Packages\astral-sh.uv_Microsoft.Winget.Source_8wekyb3d8bbwe`.
 - **`.venv\Scripts\Activate.ps1` und ExecutionPolicy:** `CurrentUser` steht auf `RemoteSigned`. Falls `PSSecurityException`: `Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned`.
-- **Editor-Puffer vs. Datei auf Platte:** Ungespeicherte Tabs können leer oder alt sein. Zuerst die Datei auf der Platte prüfen.
 - **`DemoRecord`:** Model `app/models/demo.py` und Export in `__init__.py` behalten. Demo-Routen bleiben weg.
 - **`sort_order`:** Pflichtfeld. `from operator import gt` nicht für `Field(gt=0.0)` importieren.
 - **Tests:** Unit ohne DB/HTTP. Integration: `LookupError`, nicht `None`. `get` gibt nie `None` zurück, `assert x is not None` danach ist wirkungslos. API: `TestClient`, Status 201/404/422. Testdateien speichern, sonst sammelt pytest sie nicht.
 - **Factory-Fixture:** Der Aufruf steht im Funktionskörper. `def foo(create_plant(...))` ist ein Syntaxfehler.
 - `include_router` bekommt den Router, nicht das Modul. Growth Stage: `from app.api.routers.growth_stages import router as router_growth_stage`.
 - Update: `model_dump(exclude_unset=True)`. `from_attributes=True` nur am Response-Schema. `LookupError` im Service, `HTTPException(404)` im Router. Die Prüfung eines Updates steht in einer Session nach dem `update`, per `get`, nicht auf dem Rückgabewert derselben Session.
-- **Git:** `main`. Der Commit dieser Sitzung enthält die restlichen GrowthStage-Tests und diesen Abschnitt. Nicht pushen, bis der Lernende es will. `nsm.db` nicht committen. Nicht ungefragt committen.
+- **Git:** `main`. Der Commit dieser Sitzung schließt LE 3.3. Nicht pushen, bis der Lernende es will. `nsm.db` nicht committen. Nicht ungefragt committen.
 - **Offen, nicht entschieden:** Soll `docs/alembic.md` in `kistart.md` und/oder `workflow.md` verlinkt werden? In dieser Sitzung gefragt, keine Antwort. Nicht stillschweigend verlinken und nicht als Einstieg der nächsten Sitzung noch einmal fragen.
 - Parametrize zurückgestellt.
 - SQLite-Inhalt lokal z. B. Extension **SQLite Viewer** (`qwtel.sqlite-viewer`).
@@ -1334,14 +1323,15 @@ Ab Phase 3 schreibt der Lernende den Fachcode und die Tests. Agent: Konzept, Rev
 - Die Fixture `session` wieder anlegen
 - `plant_id` auf `GrowthStageUpdate` setzen, nur damit der Update-Test ein Feld hat
 - Router oder die 1:n-Beziehung noch einmal als Einstieg erklären
-- Alembic, Schemas, Service oder Router für Recipe, bevor das Model reviewed ist
 - `plant_id` aus dem GrowthStage-Model entfernen
+- `growth_stage_id` auf `RecipeUpdate` setzen
 - EC/pH-Reihenfolge (`min <= target <= max`)
 - `ec_min = 0.0` als Pflicht-Test nachziehen
-- RecipeItem und die 100-%-Summe (LE 3.4)
+- RecipeItem und die 100-%-Summe (LE 3.4), bis der Lernende die LE beginnt
+- `IntegrityError` im Recipe-Router in einen HTTP-Status übersetzen
 - PostgreSQL / Docker Compose / Testcontainers
 - Demo-Records-API oder `drop_table('demo_records')`
 - Parametrize
 - `plant_create_1` oder `grow_stage_create_1` stillschweigend löschen
-- ungefragt committen, pushen oder LE 3.3 abschließen
+- ungefragt committen, pushen oder LE 3.4 beginnen
 

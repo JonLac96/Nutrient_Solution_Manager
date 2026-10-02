@@ -7,8 +7,9 @@ import pytest
 from sqlalchemy.orm import Session
 from app.core.database import SessionLocal
 from app.schemas.plant import PlantCreate
+from app.schemas.recipe import RecipeCreate
 from app.services.plant import PlantService
-from app.services.growth_stage import GrowthStageCreate
+from app.services.growth_stage import GrowthStageCreate, GrowthStageService
 
 @pytest.fixture
 def open_session() -> Callable[[], AbstractContextManager[Session]]:
@@ -64,6 +65,32 @@ def create_plant() -> Callable[[Session, PlantCreate], int]:
         service = PlantService(session)
         plant = service.create(plant_create)
         return plant.id
+    return _make
+
+
+@pytest.fixture
+def valid_recipe_payload() -> dict[str, str | int]:
+    return {
+        "growth_stage_id": 1,
+        "name": "Vegetative mix",
+    }
+
+
+@pytest.fixture
+def recipe_create_1() -> RecipeCreate:
+    return RecipeCreate(
+        growth_stage_id=1,
+        name="recipe1",
+    )
+
+
+@pytest.fixture
+def create_growth_stage() -> Callable[[Session, GrowthStageCreate], int]:
+    def _make(session: Session, growth_stage_create: GrowthStageCreate) -> int:
+        service = GrowthStageService(session)
+        growth_stage = service.create(growth_stage_create)
+        return growth_stage.id
+
     return _make
 
 
